@@ -1,4 +1,4 @@
-import { Footprints, Star } from 'lucide-react'
+import { Footprints, Sparkles, Star } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import {
@@ -73,6 +73,13 @@ export function PlaceCard({ place, selected, onSelect, score, reasons }: PlaceCa
           <p className="mt-0.5 truncate text-xs text-muted-foreground">{place.address}</p>
         )}
 
+        {reasons && reasons.length > 0 && (
+          <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-primary">
+            <Sparkles className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{reasons.join(' · ')}</span>
+          </p>
+        )}
+
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           {place.open_now != null && (
             <Badge
@@ -91,11 +98,6 @@ export function PlaceCard({ place, selected, onSelect, score, reasons }: PlaceCa
             <Footprints className="h-3 w-3" />
             {formatDistance(place.distance_m)} · {formatWalkingTime(place.distance_m)}
           </Badge>
-          {reasons?.slice(0, 2).map((reason) => (
-            <Badge key={reason} variant="outline" className="font-normal text-muted-foreground">
-              {reason}
-            </Badge>
-          ))}
         </div>
       </div>
     </button>
