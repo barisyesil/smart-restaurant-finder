@@ -1,10 +1,42 @@
-import { AdvancedMarker, APIProvider, Map, useMap } from '@vis.gl/react-google-maps'
+import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps'
 import { useEffect, useRef } from 'react'
 
 import type { Coordinates } from '@/hooks/useGeolocation'
 import { getCategoryMeta } from '@/lib/constants'
-import { cn } from '@/lib/utils'
 import type { Place } from '@/types/place'
+
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined
+
+// Ekran kirliliğini azaltmak için diğer POI'leri, toplu taşımayı ve yol etiket
+// ikonlarını gizleyen sade harita stili. (styles yalnızca mapId YOKKEN çalışır.)
+const MAP_STYLE = [
+  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'road', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+  { featureType: 'road.local', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+]
+
+const CIRCLE_PATH = 'M 0 0 m -7 0 a 7 7 0 1 0 14 0 a 7 7 0 1 0 -14 0'
+
+function categoryMarkerIcon(color: string, selected: boolean) {
+  return {
+    path: CIRCLE_PATH,
+    fillColor: color,
+    fillOpacity: 1,
+    strokeColor: '#ffffff',
+    strokeWeight: 2.5,
+    scale: selected ? 1.7 : 1.1,
+  }
+}
+
+const USER_MARKER_ICON = {
+  path: CIRCLE_PATH,
+  fillColor: '#dc2626',
+  fillOpacity: 1,
+  strokeColor: '#ffffff',
+  strokeWeight: 3,
+  scale: 1.5,
+}
 
 /** Aktif konum değiştiğinde haritayı oraya kaydırır (kullanıcı serbestçe gezebilir). */
 function MapController({ center }: { center: Coordinates }) {
@@ -22,9 +54,6 @@ function MapController({ center }: { center: Coordinates }) {
 
   return null
 }
-
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined
-const MAP_ID = 'DEMO_MAP_ID' // AdvancedMarker için gerekli; production'da gerçek Map ID kullanılır
 
 interface MapViewProps {
   center: Coordinates
@@ -54,45 +83,36 @@ export function MapView({
       <Map
         defaultCenter={{ lat: center.lat, lng: center.lon }}
         defaultZoom={15}
-        mapId={MAP_ID}
+        styles={MAP_STYLE}
         gestureHandling="greedy"
-        disableDefaultUI={false}
+        disableDefaultUI
+        zoomControl
         clickableIcons={false}
         className="h-full w-full"
       >
         <MapController center={center} />
 
         {userCoords && (
-          <AdvancedMarker
+          <Marker
             position={{ lat: userCoords.lat, lng: userCoords.lon }}
+            icon={USER_MARKER_ICON}
             title="Buradasınız"
-          >
-            <div className="user-pin" />
-          </AdvancedMarker>
+            zIndex={20}
+          />
         )}
 
         {places.map((place) => {
-          const { color, Icon } = getCategoryMeta(place.category)
+          const { color } = getCategoryMeta(place.category)
           const selected = place.id === selectedPlaceId
           return (
-            <AdvancedMarker
+            <Marker
               key={place.id}
               position={{ lat: place.lat, lng: place.lon }}
+              icon={categoryMarkerIcon(color, selected)}
               title={place.name}
               zIndex={selected ? 10 : 1}
               onClick={() => onSelectPlace(place.id)}
-            >
-              <div
-                className={cn('place-pin', selected && 'place-pin--selected')}
-                style={
-                  selected
-                    ? { backgroundColor: color, color: '#ffffff', borderColor: color }
-                    : { color }
-                }
-              >
-                <Icon className="h-[18px] w-[18px]" />
-              </div>
-            </AdvancedMarker>
+            />
           )
         })}
       </Map>
