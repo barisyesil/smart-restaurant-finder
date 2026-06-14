@@ -1,21 +1,46 @@
-import { AdvancedMarker, APIProvider, Map } from '@vis.gl/react-google-maps'
+import { AdvancedMarker, APIProvider, Map, useMap } from '@vis.gl/react-google-maps'
+import { useEffect, useRef } from 'react'
 
 import type { Coordinates } from '@/hooks/useGeolocation'
 import { getCategoryMeta } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import type { Place } from '@/types/place'
 
+/** Aktif konum değiştiğinde haritayı oraya kaydırır (kullanıcı serbestçe gezebilir). */
+function MapController({ center }: { center: Coordinates }) {
+  const map = useMap()
+  const prevKey = useRef('')
+
+  useEffect(() => {
+    if (!map) return
+    const key = `${center.lat},${center.lon}`
+    if (key !== prevKey.current) {
+      prevKey.current = key
+      map.panTo({ lat: center.lat, lng: center.lon })
+    }
+  }, [map, center])
+
+  return null
+}
+
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined
 const MAP_ID = 'DEMO_MAP_ID' // AdvancedMarker için gerekli; production'da gerçek Map ID kullanılır
 
 interface MapViewProps {
   center: Coordinates
+  userCoords: Coordinates | null
   places: Place[]
   selectedPlaceId: string | null
   onSelectPlace: (id: string) => void
 }
 
-export function MapView({ center, places, selectedPlaceId, onSelectPlace }: MapViewProps) {
+export function MapView({
+  center,
+  userCoords,
+  places,
+  selectedPlaceId,
+  onSelectPlace,
+}: MapViewProps) {
   if (!API_KEY) {
     return (
       <div className="flex h-full items-center justify-center p-6 text-center text-muted-foreground">
@@ -35,9 +60,16 @@ export function MapView({ center, places, selectedPlaceId, onSelectPlace }: MapV
         clickableIcons={false}
         className="h-full w-full"
       >
-        <AdvancedMarker position={{ lat: center.lat, lng: center.lon }} title="Buradasınız">
-          <div className="user-pin" />
-        </AdvancedMarker>
+        <MapController center={center} />
+
+        {userCoords && (
+          <AdvancedMarker
+            position={{ lat: userCoords.lat, lng: userCoords.lon }}
+            title="Buradasınız"
+          >
+            <div className="user-pin" />
+          </AdvancedMarker>
+        )}
 
         {places.map((place) => {
           const { color, Icon } = getCategoryMeta(place.category)

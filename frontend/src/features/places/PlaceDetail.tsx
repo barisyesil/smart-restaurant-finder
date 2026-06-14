@@ -26,8 +26,8 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
   const price = formatPriceLevel(place?.price_level ?? null)
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="relative h-40 shrink-0 bg-muted">
+    <div>
+      <div className="relative h-44 bg-muted">
         {detail?.photo_uri ? (
           <img src={detail.photo_uri} alt={place?.name} className="h-full w-full object-cover" />
         ) : isLoading ? (
@@ -56,7 +56,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="p-4">
         {isError && !summary ? (
           <p className="text-sm text-destructive">Detaylar yüklenemedi.</p>
         ) : (

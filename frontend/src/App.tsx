@@ -13,7 +13,11 @@ function App() {
   const radius = useAppStore((state) => state.radius)
   const selectPlace = useAppStore((state) => state.selectPlace)
   const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
-  const { data: places = [], isLoading, isError } = useNearbyPlaces(coords, radius)
+  const customLocation = useAppStore((state) => state.customLocation)
+
+  // Aktif konum: kullanıcı bir konum aradıysa o, yoksa gerçek (geolocation) konum.
+  const activeCoords = customLocation ?? coords
+  const { data: places = [], isLoading, isError } = useNearbyPlaces(activeCoords, radius)
 
   const panel = (
     <PlacesPanel
@@ -22,7 +26,7 @@ function App() {
       isError={isError}
       geoLoading={geoLoading}
       geoError={geoError}
-      coords={coords}
+      coords={activeCoords}
     />
   )
 
@@ -30,16 +34,17 @@ function App() {
     <div className="flex h-screen w-screen overflow-hidden">
       {/* Masaüstü: sabit yapısal sidebar */}
       {!isMobile && (
-        <aside className="flex h-full w-[380px] shrink-0 flex-col border-r bg-background">
+        <aside className="h-full w-[380px] shrink-0 overflow-y-auto border-r bg-background">
           {panel}
         </aside>
       )}
 
       {/* Harita alanı (kalan tüm genişlik) */}
       <div className="relative flex-1">
-        {coords ? (
+        {activeCoords ? (
           <MapView
-            center={coords}
+            center={activeCoords}
+            userCoords={coords}
             places={places}
             selectedPlaceId={selectedPlaceId}
             onSelectPlace={selectPlace}

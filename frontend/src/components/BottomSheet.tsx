@@ -1,8 +1,10 @@
 import { Drawer } from 'vaul'
 import { useState, type ReactNode } from 'react'
 
-// Peek (özet) → yarı → tam ekran. Google Maps mobil deneyimi gibi.
-const SNAP_POINTS = ['96px', '55%', '92%']
+import { cn } from '@/lib/utils'
+
+// Peek (özet) → yarı → tam. Son nokta 1 = tam yükseklik.
+const SNAP_POINTS: (number | string)[] = ['110px', '50%', 1]
 
 interface BottomSheetProps {
   children: ReactNode
@@ -13,13 +15,14 @@ interface BottomSheetProps {
 export function BottomSheet({ children, expandKey }: BottomSheetProps) {
   const [snap, setSnap] = useState<number | string | null>(SNAP_POINTS[0])
 
-  // Bir mekan seçilince (expandKey değişince) sheet'i tam yüksekliğe aç —
-  // effect yerine render sırasında ayarlama (React'in önerdiği desen).
+  // Bir mekan seçilince sheet'i tam aç (effect yerine render sırasında ayarlama).
   const [prevExpandKey, setPrevExpandKey] = useState(expandKey)
   if (expandKey !== prevExpandKey) {
     setPrevExpandKey(expandKey)
-    if (expandKey) setSnap(SNAP_POINTS[2])
+    if (expandKey) setSnap(1)
   }
+
+  const expanded = snap === 1
 
   return (
     <Drawer.Root
@@ -31,12 +34,14 @@ export function BottomSheet({ children, expandKey }: BottomSheetProps) {
       setActiveSnapPoint={setSnap}
     >
       <Drawer.Portal>
-        <Drawer.Content
-          className="fixed inset-x-0 bottom-0 z-40 flex h-[92vh] flex-col rounded-t-2xl border border-b-0 bg-background shadow-[0_-8px_30px_rgba(0,0,0,0.12)] outline-none"
-        >
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-40 flex h-full max-h-[97%] flex-col rounded-t-2xl border border-b-0 bg-background shadow-[0_-8px_30px_rgba(0,0,0,0.12)] outline-none">
           <Drawer.Title className="sr-only">Mekanlar</Drawer.Title>
-          <div className="mx-auto mb-1 mt-3 h-1.5 w-10 shrink-0 rounded-full bg-muted" />
-          <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
+          {/* Sürükleme tutamacı */}
+          <div className="mx-auto my-3 h-1.5 w-10 shrink-0 rounded-full bg-muted" />
+          {/* Tek scroll konteyneri: yalnızca tam açıkken scroll, aksi halde sürükleme çalışsın */}
+          <div className={cn('min-h-0 flex-1', expanded ? 'overflow-y-auto' : 'overflow-hidden')}>
+            {children}
+          </div>
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
