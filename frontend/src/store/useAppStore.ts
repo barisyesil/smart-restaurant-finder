@@ -2,9 +2,9 @@ import { create } from 'zustand'
 
 interface AppState {
   radius: number
-  selectedPlaceId: number | null
+  selectedPlaceId: string | null
   setRadius: (radius: number) => void
-  selectPlace: (id: number | null) => void
+  selectPlace: (id: string | null) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({

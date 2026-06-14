@@ -1,17 +1,23 @@
-import { Footprints } from 'lucide-react'
+import { Footprints, Star } from 'lucide-react'
 
-import { formatDistance, formatWalkingTime, getCategoryMeta } from '@/lib/constants'
+import {
+  formatDistance,
+  formatPriceLevel,
+  formatWalkingTime,
+  getCategoryMeta,
+} from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import type { Place } from '@/types/place'
 
 interface PlaceCardProps {
   place: Place
   selected: boolean
-  onSelect: (id: number) => void
+  onSelect: (id: string) => void
 }
 
 export function PlaceCard({ place, selected, onSelect }: PlaceCardProps) {
   const { label, color, Icon } = getCategoryMeta(place.category)
+  const price = formatPriceLevel(place.price_level)
 
   return (
     <button
@@ -31,10 +37,31 @@ export function PlaceCard({ place, selected, onSelect }: PlaceCardProps) {
 
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{place.name}</p>
-        <p className="truncate text-sm text-muted-foreground">
-          {label}
-          {place.cuisine ? ` · ${place.cuisine}` : ''}
-        </p>
+
+        <div className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+          <span>{label}</span>
+          {place.rating != null && (
+            <span className="flex items-center gap-0.5">
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              {place.rating.toFixed(1)}
+              {place.user_ratings_total != null && (
+                <span className="text-xs">({place.user_ratings_total})</span>
+              )}
+            </span>
+          )}
+          {price && <span>· {price}</span>}
+        </div>
+
+        {place.open_now != null && (
+          <span
+            className={cn(
+              'text-xs font-medium',
+              place.open_now ? 'text-green-600' : 'text-destructive',
+            )}
+          >
+            {place.open_now ? 'Açık' : 'Kapalı'}
+          </span>
+        )}
         {place.address && <p className="truncate text-xs text-muted-foreground">{place.address}</p>}
       </div>
 

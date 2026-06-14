@@ -80,17 +80,3 @@
   }
 }
 
-/* Leaflet özel pin işaretçileri (divIcon ile React dışında render edilir) */
-.leaflet-div-icon.pin-marker {
-  background: transparent;
-  border: none;
-}
-
-.pin-marker svg {
-  display: block;
-  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.35));
-}
-
-.pin-marker--user svg {
-  filter: drop-shadow(0 2px 4px rgb(220 38 38 / 0.5));
-}

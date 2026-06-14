@@ -11,6 +11,7 @@ function App() {
   const { coords, error: geoError, loading: geoLoading } = useGeolocation()
   const radius = useAppStore((state) => state.radius)
   const selectPlace = useAppStore((state) => state.selectPlace)
+  const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
   const { data: places = [], isLoading, isError } = useNearbyPlaces(coords, radius)
 
   return (
@@ -18,7 +19,12 @@ function App() {
       {/* Harita arka plan olarak tüm ekranı kaplar */}
       <div className="absolute inset-0">
         {coords ? (
-          <MapView center={coords} places={places} onSelectPlace={selectPlace} />
+          <MapView
+            center={coords}
+            places={places}
+            selectedPlaceId={selectedPlaceId}
+            onSelectPlace={selectPlace}
+          />
         ) : (
           <div className="flex h-full items-center justify-center bg-muted text-muted-foreground">
             {geoError ?? 'Harita için konum bekleniyor…'}

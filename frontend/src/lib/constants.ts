@@ -32,3 +32,10 @@ export function formatWalkingTime(meters: number): string {
   const minutes = Math.max(1, Math.round(meters / 80))
   return `${minutes} dk`
 }
+
+/** Google price_level (0-4) → ₺ sembolleri. Veri yoksa null. */
+export function formatPriceLevel(level: number | null): string | null {
+  if (level === null || level === undefined) return null
+  if (level === 0) return 'Ücretsiz'
+  return '₺'.repeat(level)
+}
