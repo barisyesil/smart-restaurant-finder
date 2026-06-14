@@ -1,7 +1,8 @@
-import { AdvancedMarker, APIProvider, Map, Pin } from '@vis.gl/react-google-maps'
+import { AdvancedMarker, APIProvider, Map } from '@vis.gl/react-google-maps'
 
 import type { Coordinates } from '@/hooks/useGeolocation'
 import { getCategoryMeta } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 import type { Place } from '@/types/place'
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined
@@ -35,11 +36,11 @@ export function MapView({ center, places, selectedPlaceId, onSelectPlace }: MapV
         className="h-full w-full"
       >
         <AdvancedMarker position={{ lat: center.lat, lng: center.lon }} title="Buradasınız">
-          <Pin background="#dc2626" borderColor="#991b1b" glyphColor="#ffffff" />
+          <div className="user-pin" />
         </AdvancedMarker>
 
         {places.map((place) => {
-          const { color } = getCategoryMeta(place.category)
+          const { color, Icon } = getCategoryMeta(place.category)
           const selected = place.id === selectedPlaceId
           return (
             <AdvancedMarker
@@ -49,12 +50,12 @@ export function MapView({ center, places, selectedPlaceId, onSelectPlace }: MapV
               zIndex={selected ? 10 : 1}
               onClick={() => onSelectPlace(place.id)}
             >
-              <Pin
-                background={color}
-                borderColor="#ffffff"
-                glyphColor="#ffffff"
-                scale={selected ? 1.4 : 1}
-              />
+              <div
+                className={cn('place-pin', selected && 'place-pin--selected')}
+                style={{ backgroundColor: color }}
+              >
+                <Icon className="h-4 w-4" />
+              </div>
             </AdvancedMarker>
           )
         })}

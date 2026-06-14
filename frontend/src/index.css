@@ -80,3 +80,31 @@
   }
 }
 
+/* Google Maps özel işaretçileri */
+.place-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  color: #fff;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.place-pin--selected {
+  transform: scale(1.25);
+}
+
+.user-pin {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #dc2626;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 4px rgb(220 38 38 / 0.3);
+}
+

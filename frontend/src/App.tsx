@@ -2,6 +2,7 @@ import { UtensilsCrossed } from 'lucide-react'
 
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { MapView } from '@/features/map/MapView'
+import { PlaceDetail } from '@/features/places/PlaceDetail'
 import { PlaceList } from '@/features/places/PlaceList'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useNearbyPlaces } from '@/hooks/useNearbyPlaces'
@@ -13,6 +14,7 @@ function App() {
   const selectPlace = useAppStore((state) => state.selectPlace)
   const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
   const { data: places = [], isLoading, isError } = useNearbyPlaces(coords, radius)
+  const selectedPlace = places.find((place) => place.id === selectedPlaceId)
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
@@ -49,17 +51,29 @@ function App() {
           inset-x-3 bottom-3 max-h-[45vh]
           md:inset-x-auto md:bottom-auto md:left-3 md:top-20 md:max-h-[calc(100vh-6rem)] md:w-[370px]"
       >
-        <div className="border-b px-4 py-3">
-          <h2 className="font-semibold">Yakındaki Mekanlar</h2>
-          <p className="text-xs text-muted-foreground">
-            {coords ? `${places.length} mekan bulundu` : 'Konum bekleniyor'}
-          </p>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          {geoLoading && <p className="p-4 text-sm text-muted-foreground">Konumunuz alınıyor…</p>}
-          {geoError && <p className="p-4 text-sm text-destructive">{geoError}</p>}
-          {coords && <PlaceList places={places} isLoading={isLoading} isError={isError} />}
-        </div>
+        {selectedPlaceId ? (
+          <PlaceDetail
+            placeId={selectedPlaceId}
+            summary={selectedPlace}
+            onClose={() => selectPlace(null)}
+          />
+        ) : (
+          <>
+            <div className="border-b px-4 py-3">
+              <h2 className="font-semibold">Yakındaki Mekanlar</h2>
+              <p className="text-xs text-muted-foreground">
+                {coords ? `${places.length} mekan bulundu` : 'Konum bekleniyor'}
+              </p>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {geoLoading && (
+                <p className="p-4 text-sm text-muted-foreground">Konumunuz alınıyor…</p>
+              )}
+              {geoError && <p className="p-4 text-sm text-destructive">{geoError}</p>}
+              {coords && <PlaceList places={places} isLoading={isLoading} isError={isError} />}
+            </div>
+          </>
+        )}
       </aside>
     </div>
   )
