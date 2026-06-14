@@ -52,9 +52,13 @@ export function MapView({ center, places, selectedPlaceId, onSelectPlace }: MapV
             >
               <div
                 className={cn('place-pin', selected && 'place-pin--selected')}
-                style={{ backgroundColor: color }}
+                style={
+                  selected
+                    ? { backgroundColor: color, color: '#ffffff', borderColor: color }
+                    : { color }
+                }
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-[18px] w-[18px]" />
               </div>
             </AdvancedMarker>
           )
