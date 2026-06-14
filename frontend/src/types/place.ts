@@ -14,6 +14,11 @@ export interface Place {
   photo_name: string | null
 }
 
+export interface RecommendedPlace extends Place {
+  score: number
+  reasons: string[]
+}
+
 export interface PlaceDetail {
   id: string
   name: string

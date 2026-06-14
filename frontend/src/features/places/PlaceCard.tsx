@@ -14,11 +14,14 @@ interface PlaceCardProps {
   place: Place
   selected: boolean
   onSelect: (id: string) => void
+  score?: number
+  reasons?: string[]
 }
 
-export function PlaceCard({ place, selected, onSelect }: PlaceCardProps) {
+export function PlaceCard({ place, selected, onSelect, score, reasons }: PlaceCardProps) {
   const { label, color, Icon } = getCategoryMeta(place.category)
   const price = formatPriceLevel(place.price_level)
+  const matchPercent = score != null ? Math.round(score * 100) : null
 
   return (
     <button
@@ -38,7 +41,14 @@ export function PlaceCard({ place, selected, onSelect }: PlaceCardProps) {
       </span>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold leading-tight">{place.name}</p>
+        <div className="flex items-start justify-between gap-2">
+          <p className="truncate font-semibold leading-tight">{place.name}</p>
+          {matchPercent != null && (
+            <Badge className="shrink-0 bg-primary/10 font-semibold text-primary hover:bg-primary/10">
+              %{matchPercent} uyum
+            </Badge>
+          )}
+        </div>
 
         <div className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm">
           {place.rating != null && (
@@ -81,6 +91,11 @@ export function PlaceCard({ place, selected, onSelect }: PlaceCardProps) {
             <Footprints className="h-3 w-3" />
             {formatDistance(place.distance_m)} · {formatWalkingTime(place.distance_m)}
           </Badge>
+          {reasons?.slice(0, 2).map((reason) => (
+            <Badge key={reason} variant="outline" className="font-normal text-muted-foreground">
+              {reason}
+            </Badge>
+          ))}
         </div>
       </div>
     </button>

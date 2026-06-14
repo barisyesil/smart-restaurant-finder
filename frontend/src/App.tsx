@@ -4,20 +4,35 @@ import { MapView } from '@/features/map/MapView'
 import { PlacesPanel } from '@/features/places/PlacesPanel'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useIsMobile } from '@/hooks/useIsMobile'
-import { useNearbyPlaces } from '@/hooks/useNearbyPlaces'
+import { useRecommendations } from '@/hooks/useRecommendations'
 import { useAppStore } from '@/store/useAppStore'
+import { useFavoritesStore } from '@/store/useFavoritesStore'
+import { usePreferencesStore } from '@/store/usePreferencesStore'
 
 function App() {
   const isMobile = useIsMobile()
   const { coords, error: geoError, loading: geoLoading } = useGeolocation()
-  const radius = useAppStore((state) => state.radius)
   const selectPlace = useAppStore((state) => state.selectPlace)
   const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
   const customLocation = useAppStore((state) => state.customLocation)
 
+  const categories = usePreferencesStore((state) => state.categories)
+  const maxDistance = usePreferencesStore((state) => state.maxDistance)
+  const maxPrice = usePreferencesStore((state) => state.maxPrice)
+  const openNow = usePreferencesStore((state) => state.openNow)
+  const favoriteIds = useFavoritesStore((state) => state.ids)
+
   // Aktif konum: kullanıcı bir konum aradıysa o, yoksa gerçek (geolocation) konum.
   const activeCoords = customLocation ?? coords
-  const { data: places = [], isLoading, isError } = useNearbyPlaces(activeCoords, radius)
+  const prefs = { categories, maxDistance, maxPrice, openNow }
+  const { data: recommended = [], isLoading, isError } = useRecommendations(
+    activeCoords,
+    prefs,
+    favoriteIds,
+  )
+
+  // "Açık" tercihi seçiliyse yalnızca açık mekanları göster (istemci tarafı).
+  const places = openNow ? recommended.filter((place) => place.open_now) : recommended
 
   const panel = (
     <PlacesPanel
@@ -32,14 +47,12 @@ function App() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      {/* Masaüstü: sabit yapısal sidebar */}
       {!isMobile && (
         <aside className="h-full w-[380px] shrink-0 overflow-y-auto border-r bg-background">
           {panel}
         </aside>
       )}
 
-      {/* Harita alanı (kalan tüm genişlik) */}
       <div className="relative flex-1">
         {activeCoords ? (
           <MapView
@@ -60,7 +73,6 @@ function App() {
         </div>
       </div>
 
-      {/* Mobil: alttan açılan bottom sheet */}
       {isMobile && <BottomSheet expandKey={selectedPlaceId}>{panel}</BottomSheet>}
     </div>
   )

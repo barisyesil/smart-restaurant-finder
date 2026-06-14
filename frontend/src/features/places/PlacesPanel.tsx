@@ -1,14 +1,16 @@
-import { UtensilsCrossed } from 'lucide-react'
+import { Sparkles, UtensilsCrossed } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import { LocationSearch } from '@/features/location/LocationSearch'
 import { PlaceDetail } from '@/features/places/PlaceDetail'
 import { PlaceList } from '@/features/places/PlaceList'
+import { QuickFilters } from '@/features/preferences/QuickFilters'
 import type { Coordinates } from '@/hooks/useGeolocation'
 import { useAppStore } from '@/store/useAppStore'
-import type { Place } from '@/types/place'
+import type { RecommendedPlace } from '@/types/place'
 
 interface PlacesPanelProps {
-  places: Place[]
+  places: RecommendedPlace[]
   isLoading: boolean
   isError: boolean
   geoLoading: boolean
@@ -38,23 +40,44 @@ export function PlacesPanel({
     )
   }
 
+  function surpriseMe() {
+    if (places.length === 0) return
+    const pool = places.slice(0, Math.min(8, places.length))
+    const pick = pool[Math.floor(Math.random() * pool.length)]
+    selectPlace(pick.id)
+  }
+
   const subtitle = coords
-    ? `${places.length} mekan bulundu`
+    ? `Senin için en uygun ${places.length} mekan`
     : geoLoading
       ? 'Konumunuz alınıyor…'
       : 'Konum bekleniyor'
 
   return (
     <div>
-      <div className="sticky top-0 z-10 border-b bg-background/95 px-4 py-3 backdrop-blur">
-        <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <UtensilsCrossed className="h-4 w-4" />
-          </span>
-          <h1 className="text-base font-semibold tracking-tight">Akıllı Restoran Öneri</h1>
+      <div className="sticky top-0 z-10 space-y-3 border-b bg-background/95 px-4 py-3 backdrop-blur">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <UtensilsCrossed className="h-4 w-4" />
+            </span>
+            <h1 className="text-base font-semibold tracking-tight">Akıllı Restoran Öneri</h1>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
+
         <LocationSearch />
+        <QuickFilters />
+
+        <Button
+          onClick={surpriseMe}
+          disabled={places.length === 0}
+          className="w-full gap-2"
+          variant="secondary"
+        >
+          <Sparkles className="h-4 w-4" />
+          Sürpriz beni
+        </Button>
       </div>
 
       {!coords && geoError ? (

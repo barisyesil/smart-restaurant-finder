@@ -1,9 +1,9 @@
 import { PlaceCard } from '@/features/places/PlaceCard'
 import { useAppStore } from '@/store/useAppStore'
-import type { Place } from '@/types/place'
+import type { RecommendedPlace } from '@/types/place'
 
 interface PlaceListProps {
-  places: Place[]
+  places: RecommendedPlace[]
   isLoading: boolean
   isError: boolean
 }
@@ -19,7 +19,7 @@ export function PlaceList({ places, isLoading, isError }: PlaceListProps) {
     return <p className="p-4 text-sm text-destructive">Mekanlar yüklenemedi.</p>
   }
   if (places.length === 0) {
-    return <p className="p-4 text-sm text-muted-foreground">Yakında mekan bulunamadı.</p>
+    return <p className="p-4 text-sm text-muted-foreground">Uygun mekan bulunamadı.</p>
   }
 
   return (
@@ -30,6 +30,8 @@ export function PlaceList({ places, isLoading, isError }: PlaceListProps) {
           place={place}
           selected={place.id === selectedPlaceId}
           onSelect={selectPlace}
+          score={place.score}
+          reasons={place.reasons}
         />
       ))}
     </div>
