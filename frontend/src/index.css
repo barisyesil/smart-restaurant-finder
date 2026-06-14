@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -79,25 +80,17 @@
   }
 }
 
-/* Leaflet özel işaretçileri (divIcon ile React dışında render edilir) */
-.place-marker {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  font-size: 18px;
-  background: var(--card);
-  border: 2px solid var(--primary);
-  border-radius: 9999px;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+/* Leaflet özel pin işaretçileri (divIcon ile React dışında render edilir) */
+.leaflet-div-icon.pin-marker {
+  background: transparent;
+  border: none;
 }
 
-.user-marker {
-  width: 18px;
-  height: 18px;
-  border-radius: 9999px;
-  background: #2563eb;
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 4px rgb(37 99 235 / 0.3);
+.pin-marker svg {
+  display: block;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.35));
+}
+
+.pin-marker--user svg {
+  filter: drop-shadow(0 2px 4px rgb(220 38 38 / 0.5));
 }

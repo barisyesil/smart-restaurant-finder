@@ -19,4 +19,12 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // shadcn/ui bileşenleri vendored'dır; variant sabitlerini bileşenle aynı
+    // dosyada export ettikleri için fast-refresh kuralını burada devre dışı bırakıyoruz.
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
