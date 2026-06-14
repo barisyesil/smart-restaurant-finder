@@ -1,14 +1,21 @@
-import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps'
+import { APIProvider, Map, Marker, useApiIsLoaded, useMap } from '@vis.gl/react-google-maps'
 import { useEffect, useRef } from 'react'
 
 import type { Coordinates } from '@/hooks/useGeolocation'
 import { getCategoryMeta } from '@/lib/constants'
+import {
+  categoryMarkerUrl,
+  MARKER_ANCHOR_X,
+  MARKER_ANCHOR_Y,
+  MARKER_HEIGHT,
+  MARKER_WIDTH,
+  userMarkerUrl,
+} from '@/lib/map-markers'
 import type { Place } from '@/types/place'
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined
 
-// Ekran kirliliğini azaltmak için diğer POI'leri, toplu taşımayı ve yol etiket
-// ikonlarını gizleyen sade harita stili. (styles yalnızca mapId YOKKEN çalışır.)
+// Ekran kirliliğini azaltan sade harita stili (styles yalnızca mapId YOKKEN çalışır).
 const MAP_STYLE = [
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
@@ -16,26 +23,53 @@ const MAP_STYLE = [
   { featureType: 'road.local', elementType: 'labels', stylers: [{ visibility: 'off' }] },
 ]
 
-const CIRCLE_PATH = 'M 0 0 m -7 0 a 7 7 0 1 0 14 0 a 7 7 0 1 0 -14 0'
-
-function categoryMarkerIcon(color: string, selected: boolean) {
+function markerIcon(url: string, scale: number): google.maps.Icon {
   return {
-    path: CIRCLE_PATH,
-    fillColor: color,
-    fillOpacity: 1,
-    strokeColor: '#ffffff',
-    strokeWeight: 2.5,
-    scale: selected ? 1.7 : 1.1,
+    url,
+    scaledSize: new google.maps.Size(MARKER_WIDTH * scale, MARKER_HEIGHT * scale),
+    anchor: new google.maps.Point(MARKER_ANCHOR_X * scale, MARKER_ANCHOR_Y * scale),
   }
 }
 
-const USER_MARKER_ICON = {
-  path: CIRCLE_PATH,
-  fillColor: '#dc2626',
-  fillOpacity: 1,
-  strokeColor: '#ffffff',
-  strokeWeight: 3,
-  scale: 1.5,
+interface MarkersProps {
+  userCoords: Coordinates | null
+  places: Place[]
+  selectedPlaceId: string | null
+  onSelectPlace: (id: string) => void
+}
+
+// google.maps yüklendikten sonra render edilir (ikonlar google.maps.Size/Point kullanır).
+function Markers({ userCoords, places, selectedPlaceId, onSelectPlace }: MarkersProps) {
+  const loaded = useApiIsLoaded()
+  if (!loaded) return null
+
+  return (
+    <>
+      {userCoords && (
+        <Marker
+          position={{ lat: userCoords.lat, lng: userCoords.lon }}
+          icon={markerIcon(userMarkerUrl, 1.15)}
+          title="Buradasınız"
+          zIndex={20}
+        />
+      )}
+
+      {places.map((place) => {
+        const { color } = getCategoryMeta(place.category)
+        const selected = place.id === selectedPlaceId
+        return (
+          <Marker
+            key={place.id}
+            position={{ lat: place.lat, lng: place.lon }}
+            icon={markerIcon(categoryMarkerUrl(place.category, color), selected ? 1.2 : 1)}
+            title={place.name}
+            zIndex={selected ? 10 : 1}
+            onClick={() => onSelectPlace(place.id)}
+          />
+        )
+      })}
+    </>
+  )
 }
 
 /** Aktif konum değiştiğinde haritayı oraya kaydırır (kullanıcı serbestçe gezebilir). */
@@ -91,30 +125,12 @@ export function MapView({
         className="h-full w-full"
       >
         <MapController center={center} />
-
-        {userCoords && (
-          <Marker
-            position={{ lat: userCoords.lat, lng: userCoords.lon }}
-            icon={USER_MARKER_ICON}
-            title="Buradasınız"
-            zIndex={20}
-          />
-        )}
-
-        {places.map((place) => {
-          const { color } = getCategoryMeta(place.category)
-          const selected = place.id === selectedPlaceId
-          return (
-            <Marker
-              key={place.id}
-              position={{ lat: place.lat, lng: place.lon }}
-              icon={categoryMarkerIcon(color, selected)}
-              title={place.name}
-              zIndex={selected ? 10 : 1}
-              onClick={() => onSelectPlace(place.id)}
-            />
-          )
-        })}
+        <Markers
+          userCoords={userCoords}
+          places={places}
+          selectedPlaceId={selectedPlaceId}
+          onSelectPlace={onSelectPlace}
+        />
       </Map>
     </APIProvider>
   )
