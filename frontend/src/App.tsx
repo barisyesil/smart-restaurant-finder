@@ -1,13 +1,13 @@
 import { BottomSheet } from '@/components/BottomSheet'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Sidebar } from '@/features/layout/Sidebar'
 import { MapView } from '@/features/map/MapView'
-import { PlacesPanel } from '@/features/places/PlacesPanel'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useRecommendations } from '@/hooks/useRecommendations'
 import { useAppStore } from '@/store/useAppStore'
-import { useFavoritesStore } from '@/store/useFavoritesStore'
 import { usePreferencesStore } from '@/store/usePreferencesStore'
+import { useSavedPlacesStore } from '@/store/useSavedPlacesStore'
 
 function App() {
   const isMobile = useIsMobile()
@@ -21,7 +21,7 @@ function App() {
   const maxDistance = usePreferencesStore((state) => state.maxDistance)
   const maxPrice = usePreferencesStore((state) => state.maxPrice)
   const openNow = usePreferencesStore((state) => state.openNow)
-  const favorites = useFavoritesStore((state) => state.favorites)
+  const favorites = useSavedPlacesStore((state) => state.favorites)
 
   const favoriteIds = favorites.map((favorite) => favorite.id)
   const favoriteTypes = [...new Set(favorites.flatMap((favorite) => favorite.types))]
@@ -40,7 +40,7 @@ function App() {
   const places = openNow ? recommended.filter((place) => place.open_now) : recommended
 
   const panel = (
-    <PlacesPanel
+    <Sidebar
       places={places}
       isLoading={isLoading}
       isError={isError}

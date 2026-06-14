@@ -2,14 +2,13 @@ import { Sparkles, UtensilsCrossed } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { LocationSearch } from '@/features/location/LocationSearch'
-import { PlaceDetail } from '@/features/places/PlaceDetail'
 import { PlaceList } from '@/features/places/PlaceList'
 import { QuickFilters } from '@/features/preferences/QuickFilters'
 import type { Coordinates } from '@/hooks/useGeolocation'
 import { useAppStore } from '@/store/useAppStore'
 import type { RecommendedPlace } from '@/types/place'
 
-interface PlacesPanelProps {
+interface DiscoverPanelProps {
   places: RecommendedPlace[]
   isLoading: boolean
   isError: boolean
@@ -18,27 +17,15 @@ interface PlacesPanelProps {
   coords: Coordinates | null
 }
 
-export function PlacesPanel({
+export function DiscoverPanel({
   places,
   isLoading,
   isError,
   geoLoading,
   geoError,
   coords,
-}: PlacesPanelProps) {
-  const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
+}: DiscoverPanelProps) {
   const selectPlace = useAppStore((state) => state.selectPlace)
-  const selectedPlace = places.find((place) => place.id === selectedPlaceId)
-
-  if (selectedPlaceId) {
-    return (
-      <PlaceDetail
-        placeId={selectedPlaceId}
-        summary={selectedPlace}
-        onClose={() => selectPlace(null)}
-      />
-    )
-  }
 
   function surpriseMe() {
     if (places.length === 0) return

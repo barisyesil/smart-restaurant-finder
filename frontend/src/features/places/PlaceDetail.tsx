@@ -1,11 +1,11 @@
-import { ArrowLeft, ExternalLink, Globe, Heart, Phone, Star } from 'lucide-react'
+import { ArrowLeft, Check, Globe, Heart, Navigation, Phone, Share2, Star } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePlaceDetails } from '@/hooks/usePlaceDetails'
 import { formatPriceLevel, getCategoryMeta } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { useFavoritesStore } from '@/store/useFavoritesStore'
+import { useSavedPlacesStore, type SavedPlace } from '@/store/useSavedPlacesStore'
 import type { Place } from '@/types/place'
 
 interface PlaceDetailProps {
@@ -16,24 +16,63 @@ interface PlaceDetailProps {
 
 export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
   const { data: detail, isLoading, isError } = usePlaceDetails(placeId)
-  const favorites = useFavoritesStore((state) => state.favorites)
-  const toggleFavorite = useFavoritesStore((state) => state.toggle)
+  const favorites = useSavedPlacesStore((state) => state.favorites)
+  const visited = useSavedPlacesStore((state) => state.visited)
+  const toggleFavorite = useSavedPlacesStore((state) => state.toggleFavorite)
+  const toggleVisited = useSavedPlacesStore((state) => state.toggleVisited)
+
   const isFavorite = favorites.some((item) => item.id === placeId)
+  const isVisited = visited.some((item) => item.id === placeId)
 
   const place = detail ?? summary
+  const meta = getCategoryMeta(place?.category ?? 'restaurant')
+  const Icon = meta.Icon
+  const price = formatPriceLevel(place?.price_level ?? null)
 
-  function handleToggleFavorite() {
-    if (!place) return
-    toggleFavorite({
+  function buildSaved(): SavedPlace | null {
+    if (!place) return null
+    return {
       id: placeId,
       name: place.name,
       category: place.category,
       types: place.types ?? [],
-    })
+      rating: place.rating,
+      user_ratings_total: place.user_ratings_total,
+      price_level: place.price_level,
+      lat: place.lat,
+      lon: place.lon,
+    }
   }
-  const meta = getCategoryMeta(place?.category ?? 'restaurant')
-  const Icon = meta.Icon
-  const price = formatPriceLevel(place?.price_level ?? null)
+
+  function handleFavorite() {
+    const saved = buildSaved()
+    if (saved) toggleFavorite(saved)
+  }
+
+  function handleVisited() {
+    const saved = buildSaved()
+    if (saved) toggleVisited(saved)
+  }
+
+  async function handleShare() {
+    if (!place) return
+    const url =
+      detail?.google_maps_uri ??
+      `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lon}`
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: place.name, url })
+      } else {
+        await navigator.clipboard.writeText(url)
+      }
+    } catch {
+      // kullanıcı paylaşımı iptal etti — sessizce geç
+    }
+  }
+
+  const directionsUrl = place
+    ? `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}&destination_place_id=${placeId}`
+    : '#'
 
   return (
     <div>
@@ -58,7 +97,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
         <Button
           variant="secondary"
           size="icon"
-          onClick={handleToggleFavorite}
+          onClick={handleFavorite}
           className="absolute right-2 top-2 rounded-full shadow"
           aria-label="Favorilere ekle"
         >
@@ -94,7 +133,33 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
               )}
             </div>
 
-            {detail?.editorial_summary && <p className="mt-3 text-sm">{detail.editorial_summary}</p>}
+            {/* Hızlı aksiyonlar */}
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <Button asChild variant="outline" className="h-auto flex-col gap-1 py-2">
+                <a href={directionsUrl} target="_blank" rel="noreferrer">
+                  <Navigation className="h-4 w-4" />
+                  <span className="text-xs">Nasıl giderim</span>
+                </a>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-auto flex-col gap-1 py-2"
+                onClick={handleShare}
+              >
+                <Share2 className="h-4 w-4" />
+                <span className="text-xs">Paylaş</span>
+              </Button>
+              <Button
+                variant={isVisited ? 'default' : 'outline'}
+                className="h-auto flex-col gap-1 py-2"
+                onClick={handleVisited}
+              >
+                <Check className="h-4 w-4" />
+                <span className="text-xs">{isVisited ? 'Gidildi' : 'Gittim'}</span>
+              </Button>
+            </div>
+
+            {detail?.editorial_summary && <p className="mt-4 text-sm">{detail.editorial_summary}</p>}
             {place?.address && <p className="mt-3 text-sm text-muted-foreground">{place.address}</p>}
 
             {isLoading && !detail ? (
@@ -124,14 +189,6 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
                   <a href={detail.website} target="_blank" rel="noreferrer">
                     <Globe className="mr-2 h-4 w-4" />
                     Web sitesi
-                  </a>
-                </Button>
-              )}
-              {detail?.google_maps_uri && (
-                <Button asChild className="justify-start">
-                  <a href={detail.google_maps_uri} target="_blank" rel="noreferrer">
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Google Haritalar'da aç
                   </a>
                 </Button>
               )}
