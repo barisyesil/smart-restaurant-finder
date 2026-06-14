@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.places import router as places_router
 from app.core.config import settings
 
 
@@ -18,6 +19,8 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["health"])
     def health_check() -> dict[str, str]:
         return {"status": "ok"}
+
+    app.include_router(places_router)
 
     return app
 
