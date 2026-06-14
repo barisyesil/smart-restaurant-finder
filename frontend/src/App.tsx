@@ -17,18 +17,23 @@ function App() {
   const customLocation = useAppStore((state) => state.customLocation)
 
   const categories = usePreferencesStore((state) => state.categories)
+  const cuisines = usePreferencesStore((state) => state.cuisines)
   const maxDistance = usePreferencesStore((state) => state.maxDistance)
   const maxPrice = usePreferencesStore((state) => state.maxPrice)
   const openNow = usePreferencesStore((state) => state.openNow)
-  const favoriteIds = useFavoritesStore((state) => state.ids)
+  const favorites = useFavoritesStore((state) => state.favorites)
+
+  const favoriteIds = favorites.map((favorite) => favorite.id)
+  const favoriteTypes = [...new Set(favorites.flatMap((favorite) => favorite.types))]
 
   // Aktif konum: kullanıcı bir konum aradıysa o, yoksa gerçek (geolocation) konum.
   const activeCoords = customLocation ?? coords
-  const prefs = { categories, maxDistance, maxPrice, openNow }
+  const prefs = { categories, cuisines, maxDistance, maxPrice, openNow }
   const { data: recommended = [], isLoading, isError } = useRecommendations(
     activeCoords,
     prefs,
     favoriteIds,
+    favoriteTypes,
   )
 
   // "Açık" tercihi seçiliyse yalnızca açık mekanları göster (istemci tarafı).

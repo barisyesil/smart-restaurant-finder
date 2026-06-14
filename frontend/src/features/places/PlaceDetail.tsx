@@ -16,11 +16,21 @@ interface PlaceDetailProps {
 
 export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
   const { data: detail, isLoading, isError } = usePlaceDetails(placeId)
-  const favoriteIds = useFavoritesStore((state) => state.ids)
+  const favorites = useFavoritesStore((state) => state.favorites)
   const toggleFavorite = useFavoritesStore((state) => state.toggle)
-  const isFavorite = favoriteIds.includes(placeId)
+  const isFavorite = favorites.some((item) => item.id === placeId)
 
   const place = detail ?? summary
+
+  function handleToggleFavorite() {
+    if (!place) return
+    toggleFavorite({
+      id: placeId,
+      name: place.name,
+      category: place.category,
+      types: place.types ?? [],
+    })
+  }
   const meta = getCategoryMeta(place?.category ?? 'restaurant')
   const Icon = meta.Icon
   const price = formatPriceLevel(place?.price_level ?? null)
@@ -48,7 +58,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
         <Button
           variant="secondary"
           size="icon"
-          onClick={() => toggleFavorite(placeId)}
+          onClick={handleToggleFavorite}
           className="absolute right-2 top-2 rounded-full shadow"
           aria-label="Favorilere ekle"
         >

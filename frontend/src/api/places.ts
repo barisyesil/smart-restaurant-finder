@@ -20,8 +20,11 @@ export interface RecommendParams {
   lon: number
   radius: number
   categories: string[]
+  cuisines: string[]
   max_price: number | null
+  open_now: boolean
   favorite_ids: string[]
+  favorite_types: string[]
 }
 
 export function getRecommendations(params: RecommendParams): Promise<RecommendedPlace[]> {

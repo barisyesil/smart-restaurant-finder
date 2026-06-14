@@ -47,9 +47,12 @@ class RecommendRequest(BaseModel):
     lat: float = Field(..., ge=-90, le=90)
     lon: float = Field(..., ge=-180, le=180)
     radius: int = Field(1000, ge=100, le=5000)
-    categories: list[str] = []  # boş = tüm türler
+    categories: list[str] = []  # geniş tür (restaurant/cafe/fast_food), boş = hepsi
+    cuisines: list[str] = []  # özel Google türleri (turkish_restaurant, coffee_shop, ...)
     max_price: int | None = Field(None, ge=0, le=4)  # None = fiyat farketmez
+    open_now: bool = False  # True ise kapalılara ceza uygulanmaz (zaten filtrelenir)
     favorite_ids: list[str] = []
+    favorite_types: list[str] = []  # beğenilen mekanların türleri (içerik-tabanlı benzerlik)
 
 
 class RecommendedPlace(Place):

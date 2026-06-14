@@ -23,11 +23,24 @@ const PRICE_OPTIONS: { label: string; value: number | null }[] = [
   { label: '₺₺₺₺', value: 4 },
 ]
 
+const CUISINE_OPTIONS: { label: string; value: string }[] = [
+  { label: 'Türk', value: 'turkish_restaurant' },
+  { label: 'Pizza', value: 'pizza_restaurant' },
+  { label: 'Burger', value: 'hamburger_restaurant' },
+  { label: 'Kahve', value: 'coffee_shop' },
+  { label: 'Tatlı', value: 'dessert_shop' },
+  { label: 'Deniz Ürünleri', value: 'seafood_restaurant' },
+  { label: 'Fırın', value: 'bakery' },
+  { label: 'Bar', value: 'bar' },
+]
+
 export function PreferencesSheet() {
   const maxDistance = usePreferencesStore((state) => state.maxDistance)
   const setMaxDistance = usePreferencesStore((state) => state.setMaxDistance)
   const maxPrice = usePreferencesStore((state) => state.maxPrice)
   const setMaxPrice = usePreferencesStore((state) => state.setMaxPrice)
+  const cuisines = usePreferencesStore((state) => state.cuisines)
+  const toggleCuisine = usePreferencesStore((state) => state.toggleCuisine)
   const reset = usePreferencesStore((state) => state.reset)
 
   return (
@@ -59,6 +72,24 @@ export function PreferencesSheet() {
               value={[maxDistance]}
               onValueChange={(value) => setMaxDistance(value[0])}
             />
+          </div>
+
+          <div>
+            <Label className="mb-2 block">Mutfak</Label>
+            <div className="flex flex-wrap gap-1.5">
+              {CUISINE_OPTIONS.map((option) => (
+                <Button
+                  key={option.value}
+                  type="button"
+                  variant={cuisines.includes(option.value) ? 'default' : 'outline'}
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => toggleCuisine(option.value)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
           </div>
 
           <div>

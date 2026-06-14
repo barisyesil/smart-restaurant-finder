@@ -21,7 +21,7 @@ interface PlaceCardProps {
 export function PlaceCard({ place, selected, onSelect, score, reasons }: PlaceCardProps) {
   const { label, color, Icon } = getCategoryMeta(place.category)
   const price = formatPriceLevel(place.price_level)
-  const matchPercent = score != null ? Math.round(score * 100) : null
+  const matchPercent = score != null ? Math.round(score) : null
 
   return (
     <button
