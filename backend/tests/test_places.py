@@ -51,6 +51,38 @@ def test_nearby_validates_coordinates():
     assert response.status_code == 422
 
 
+def test_recommend_endpoint(monkeypatch):
+    monkeypatch.setattr(settings, "google_maps_api_key", "test-key")
+
+    async def fake_fetch(lat, lon, radius):
+        return [
+            Place(
+                id="a",
+                name="Kafe A",
+                category="cafe",
+                rating=4.5,
+                user_ratings_total=100,
+                lat=lat,
+                lon=lon,
+                distance_m=100,
+            )
+        ]
+
+    monkeypatch.setattr(places_module, "fetch_nearby_places", fake_fetch)
+
+    response = client.post(
+        "/places/recommend",
+        json={"lat": 39.0, "lon": 30.0, "radius": 1000, "categories": ["cafe"]},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["category"] == "cafe"
+    assert "score" in data[0]
+    assert isinstance(data[0]["reasons"], list)
+
+
 def test_place_detail_returns_data(monkeypatch):
     monkeypatch.setattr(settings, "google_maps_api_key", "test-key")
 

@@ -2,8 +2,9 @@ import httpx
 from fastapi import APIRouter, HTTPException, Query
 
 from app.core.config import settings
-from app.schemas.place import Place, PlaceDetail
+from app.schemas.place import Place, PlaceDetail, RecommendedPlace, RecommendRequest
 from app.services.google_places import fetch_nearby_places, fetch_place_details
+from app.services.scoring import recommend
 
 router = APIRouter(prefix="/places", tags=["places"])
 
@@ -27,6 +28,19 @@ async def get_nearby_places(
             status_code=502,
             detail="Mekan verisi sağlayıcısına ulaşılamadı.",
         ) from exc
+
+
+@router.post("/recommend", response_model=list[RecommendedPlace])
+async def recommend_places(request: RecommendRequest) -> list[RecommendedPlace]:
+    _require_api_key()
+    try:
+        places = await fetch_nearby_places(request.lat, request.lon, request.radius)
+    except httpx.HTTPError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Mekan verisi sağlayıcısına ulaşılamadı.",
+        ) from exc
+    return recommend(places, request)
 
 
 @router.get("/{place_id}", response_model=PlaceDetail)
