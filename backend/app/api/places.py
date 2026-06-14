@@ -1,8 +1,9 @@
 import httpx
 from fastapi import APIRouter, HTTPException, Query
 
+from app.core.config import settings
 from app.schemas.place import Place
-from app.services.overpass import fetch_nearby_places
+from app.services.google_places import fetch_nearby_places
 
 router = APIRouter(prefix="/places", tags=["places"])
 
@@ -13,6 +14,11 @@ async def get_nearby_places(
     lon: float = Query(..., ge=-180, le=180, description="Kullanıcı boylamı"),
     radius: int = Query(1000, ge=100, le=5000, description="Arama yarıçapı (metre)"),
 ) -> list[Place]:
+    if not settings.google_maps_api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="Google Maps API anahtarı yapılandırılmamış.",
+        )
     try:
         return await fetch_nearby_places(lat, lon, radius)
     except httpx.HTTPError as exc:

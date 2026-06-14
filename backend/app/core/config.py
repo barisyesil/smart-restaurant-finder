@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     # Frontend kaynaklarına CORS izni. Birden fazla origin virgülle ayrılır.
     cors_origins: str = "http://localhost:5173"
 
+    # Google Places API (New) sunucu anahtarı. Sunucuda kalır, asla frontend'e sızmaz.
+    google_maps_api_key: str = ""
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
