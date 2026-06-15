@@ -77,6 +77,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Bottom-sheet'i aşağı sürüklerken tarayıcının pull-to-refresh'ini engelle. */
+    overscroll-behavior-y: none;
   }
 }
 

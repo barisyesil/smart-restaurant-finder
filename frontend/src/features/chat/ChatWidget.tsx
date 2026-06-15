@@ -6,9 +6,10 @@ import type { PlaceRecommendation } from '@/api/chat'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useChat } from '@/hooks/useChat'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { formatDistance, formatPriceLevel, getCategoryMeta } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { useAppStore } from '@/store/useAppStore'
+import { SHEET_PEEK, useAppStore } from '@/store/useAppStore'
 import type { RecommendedPlace } from '@/types/place'
 
 interface ChatWidgetProps {
@@ -65,10 +66,13 @@ function RecommendationCard({
 
 export function ChatWidget({ places }: ChatWidgetProps) {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const { messages, suggestions, send, isPending } = useChat(places)
   const selectPlace = useAppStore((state) => state.selectPlace)
+  const open = useAppStore((state) => state.chatOpen)
+  const setOpen = useAppStore((state) => state.setChatOpen)
+  const sheetSnap = useAppStore((state) => state.sheetSnap)
+  const isMobile = useIsMobile()
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Yeni mesaj/yanıt geldikçe listeyi en alta kaydır (setState değil, salt DOM — effect-safe).
@@ -86,6 +90,8 @@ export function ChatWidget({ places }: ChatWidgetProps) {
   // Launcher: yuvarlak FAB yerine karşılama metinli "pill". Masaüstünde sağ-altta
   // (harita zoom kontrolü sola alındı), mobilde alt bottom-sheet'in peek'inin üstünde.
   if (!open) {
+    // Mobilde sheet açık (peek'ten büyük) iken pill'i gizle — içeriğin üstüne binmesin.
+    if (isMobile && sheetSnap !== SHEET_PEEK) return null
     return (
       <button
         type="button"

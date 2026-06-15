@@ -24,6 +24,7 @@ function App() {
   const selectPlace = useAppStore((state) => state.selectPlace)
   const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
   const customLocation = useAppStore((state) => state.customLocation)
+  const chatOpen = useAppStore((state) => state.chatOpen)
 
   const categories = usePreferencesStore((state) => state.categories)
   const cuisines = usePreferencesStore((state) => state.cuisines)
@@ -90,7 +91,8 @@ function App() {
         </div>
       </div>
 
-      {isMobile && <BottomSheet expandKey={selectedPlaceId}>{panel}</BottomSheet>}
+      {/* Chatbot açıkken sheet'i kaldır: mobilde üst üste binmeyi ve klavye/odak çakışmasını önler. */}
+      {isMobile && !chatOpen && <BottomSheet>{panel}</BottomSheet>}
 
       <ChatWidget places={places} />
       <AuthDialog />
