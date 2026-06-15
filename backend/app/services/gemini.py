@@ -37,6 +37,7 @@ MIN_DISTANCE = 250
 MAX_DISTANCE = 20000
 MAX_HISTORY = 8
 MAX_SUGGESTIONS = 4
+MAX_RECOMMENDATIONS = 4
 
 SYSTEM_INSTRUCTION = """\
 Sen "Akıllı Restoran Bulucu" uygulamasının asistanısın. Kullanıcının doğal dildeki
@@ -61,6 +62,26 @@ isteğini, haritayı ve listeyi güncelleyen yapılandırılmış eylemlere çev
 2) set_location — kullanıcı bir şehir/semt/yer adı söylerse (ör. "Kadıköy'de", "Beşiktaş").
    location_query alanına o yer adını yaz.
 3) reset_filters — "sıfırla/temizle/baştan başla/filtreleri kaldır" gibi isteklerde.
+
+Filtre birleştirme: Kullanıcı "bir de X ekle / ayrıca / üstüne" derse, context'teki mevcut
+categories/cuisines'i KORU ve üzerine ekleyerek tam listeyi döndür. "sadece X / yalnız X"
+derse o alanı tek başına X yap.
+
+Sana her mesajda bir bağlam (context) JSON'u verilir:
+- places: kullanıcının o an haritada gördüğü aday mekanlar (id, ad, puan, mesafe, fiyat,
+  açık mı, skorlama gerekçesi). Mekan önerisi YALNIZCA bu listeden yapılır.
+- favorites / wishlist / visited: kullanıcının beğendiği / gitmek istediği / gittiği mekanlar.
+
+Mekan önerisi (recommendations):
+- Kullanıcı mekan tavsiyesi isterse ("nereye gideyim", "bir yer öner", "en iyisi hangisi")
+  places listesinden niyetine en uygun 1-3 mekanı seç ve her biri için recommendations'a
+  {place_id, reason} ekle. reason: o mekanı NEDEN önerdiğini anlatan, kullanıcının diliyle
+  kısa ve kişisel bir cümle (puan/mesafe/fiyat/tür gibi somut nedenlere dayan).
+- Önerdiğin mekanları reply'da da isimleriyle kısaca an.
+- place_id'leri ASLA uydurma; yalnızca context'teki id'leri kullan.
+- Kullanıcı favori/gidilecek/gittiği yerleri sorarsa ilgili listeyi reply'da isimleriyle
+  özetle; uygunsa recommendations ile de göster.
+- Niyete uyan mekan yoksa bunu reply'da dürüstçe söyle ve filtreleri gevşetmeyi öner.
 
 reply: Kullanıcının diliyle (Türkçe isteğe Türkçe), kısa ve samimi 1-2 cümle. Ne yaptığını
 özetle. Eğer isteği anlamadıysan veya konu dışıysa, eylem üretme; nazikçe ne yapabildiğini
@@ -87,8 +108,9 @@ def _clamp(value: int, low: int, high: int) -> int:
     return max(low, min(high, value))
 
 
-def _sanitize(response: ChatResponse) -> ChatResponse:
-    """Modelin döndürdüğü eylemleri geçerli enum'lara snap'ler ve aralıkları kıstırır."""
+def _sanitize(response: ChatResponse, valid_place_ids: set[str]) -> ChatResponse:
+    """Modelin döndürdüğü eylemleri geçerli enum'lara snap'ler, aralıkları kıstırır ve
+    önerilen mekanları yalnızca bağlamda gerçekten var olan id'lerle sınırlar."""
     clean: list[ChatAction] = []
     for action in response.actions:
         if action.type == "apply_filters":
@@ -125,9 +147,14 @@ def _sanitize(response: ChatResponse) -> ChatResponse:
         elif action.type == "reset_filters":
             clean.append(ChatAction(type="reset_filters"))
 
+    recommendations = [
+        rec for rec in response.recommendations if rec.place_id in valid_place_ids
+    ][:MAX_RECOMMENDATIONS]
+
     return ChatResponse(
         reply=response.reply,
         actions=clean,
+        recommendations=recommendations,
         suggestions=response.suggestions[:MAX_SUGGESTIONS],
     )
 
@@ -159,8 +186,16 @@ async def chat(request: ChatRequest) -> ChatResponse:
     client = _get_client()
 
     system = SYSTEM_INSTRUCTION
+    valid_place_ids: set[str] = set()
     if request.context is not None:
-        system += "\n\nKullanıcının şu anki filtre durumu: " + request.context.model_dump_json()
+        context = request.context
+        system += "\n\nGüncel bağlam (context):\n" + context.model_dump_json()
+        valid_place_ids = (
+            {place.id for place in context.places}
+            | {place.id for place in context.favorites}
+            | {place.id for place in context.wishlist}
+            | {place.id for place in context.visited}
+        )
 
     contents = _build_contents(request)
     config = types.GenerateContentConfig(
@@ -177,7 +212,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 model=model, contents=contents, config=config
             )
             data = json.loads(response.text)
-            return _sanitize(ChatResponse.model_validate(data))
+            return _sanitize(ChatResponse.model_validate(data), valid_place_ids)
         except genai_errors.APIError as exc:
             is_last = index == len(models) - 1
             if exc.code in RETRYABLE_CODES and not is_last:

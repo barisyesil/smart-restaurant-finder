@@ -10,9 +10,30 @@ class ChatMessage(BaseModel):
     text: str
 
 
+class ChatPlace(BaseModel):
+    """Modelin önerebilmesi için gönderilen, o an görünen aday mekan (kompakt)."""
+
+    id: str
+    name: str
+    category: str
+    rating: float | None = None
+    distance_m: int | None = None
+    price_level: int | None = None
+    open_now: bool | None = None
+    reason: str | None = None  # skorlama motorunun ürettiği ilk gerekçe
+
+
+class ChatSavedPlace(BaseModel):
+    """Kullanıcının kaydettiği bir mekanın özeti (favori/gidilecek/gidilen)."""
+
+    id: str
+    name: str
+    category: str
+
+
 class ChatContext(BaseModel):
-    """Kullanıcının o anki filtre durumu. Modelin artımlı istekleri ('bir de açık olsun')
-    doğru yorumlaması için gönderilir."""
+    """Modelin karar verirken kullandığı bağlam: o anki filtreler, görünür mekanlar ve
+    kullanıcının kayıtlı listeleri."""
 
     categories: list[str] = []
     cuisines: list[str] = []
@@ -20,6 +41,10 @@ class ChatContext(BaseModel):
     max_price: int | None = None
     open_now: bool | None = None
     has_location: bool = False
+    places: list[ChatPlace] = []
+    favorites: list[ChatSavedPlace] = []
+    wishlist: list[ChatSavedPlace] = []
+    visited: list[ChatSavedPlace] = []
 
 
 class ChatRequest(BaseModel):
@@ -45,7 +70,16 @@ class ChatAction(BaseModel):
     location_query: str | None = None
 
 
+class PlaceRecommendation(BaseModel):
+    """Modelin seçtiği somut bir mekan + kullanıcıya özel doğal dil gerekçesi.
+    place_id yalnızca context'te verilen mekanlardan biri olabilir (sanitize doğrular)."""
+
+    place_id: str
+    reason: str
+
+
 class ChatResponse(BaseModel):
     reply: str
     actions: list[ChatAction] = []
+    recommendations: list[PlaceRecommendation] = []
     suggestions: list[str] = []

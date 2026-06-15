@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.schemas.chat import ChatAction, ChatResponse
+from app.schemas.chat import ChatAction, ChatResponse, PlaceRecommendation
 from app.services.gemini import _sanitize
 
 client = TestClient(app)
@@ -28,7 +28,7 @@ def test_sanitize_snaps_invalid_enums_and_clamps_ranges():
         ],
         suggestions=["a", "b", "c", "d", "e", "f"],
     )
-    cleaned = _sanitize(raw)
+    cleaned = _sanitize(raw, set())
     action = cleaned.actions[0]
     assert action.categories == ["cafe"]
     assert action.cuisines == ["coffee_shop"]
@@ -42,7 +42,7 @@ def test_sanitize_drops_blank_location_query():
         reply="",
         actions=[ChatAction(type="set_location", location_query="   ")],
     )
-    assert _sanitize(raw).actions == []
+    assert _sanitize(raw, set()).actions == []
 
 
 def test_sanitize_keeps_null_fields_as_none():
@@ -51,7 +51,20 @@ def test_sanitize_keeps_null_fields_as_none():
         reply="",
         actions=[ChatAction(type="apply_filters", open_now=True)],
     )
-    action = _sanitize(raw).actions[0]
+    action = _sanitize(raw, set()).actions[0]
     assert action.open_now is True
     assert action.max_price is None
     assert action.cuisines is None
+
+
+def test_sanitize_drops_recommendations_with_unknown_place_ids():
+    # Model bağlamda olmayan bir mekan uydurursa elenmeli (halüsinasyon koruması).
+    raw = ChatResponse(
+        reply="İşte öneriler",
+        recommendations=[
+            PlaceRecommendation(place_id="real-1", reason="Yüksek puanlı"),
+            PlaceRecommendation(place_id="uydurma-9", reason="Mevcut değil"),
+        ],
+    )
+    cleaned = _sanitize(raw, {"real-1"})
+    assert [rec.place_id for rec in cleaned.recommendations] == ["real-1"]
