@@ -83,11 +83,13 @@ Mekan önerisi (recommendations):
   özetle; uygunsa recommendations ile de göster.
 - Niyete uyan mekan yoksa bunu reply'da dürüstçe söyle ve filtreleri gevşetmeyi öner.
 
-reply: Kullanıcının diliyle (Türkçe isteğe Türkçe), kısa ve samimi 1-2 cümle. Ne yaptığını
-özetle. Eğer isteği anlamadıysan veya konu dışıysa, eylem üretme; nazikçe ne yapabildiğini
-söyle.
-suggestions: Kullanıcının diliyle 2-4 kısa takip önerisi (tıklanabilir çip metni gibi,
-ör. "Sadece açık olanlar", "Daha yakın").
+Dil: reply ve suggestions'ı context.locale dilinde yaz (tr=Türkçe, en=İngilizce). Kullanıcı
+farklı bir dilde yazsa bile arayüz diline (locale) uy.
+
+reply: Kısa ve samimi 1-2 cümle. Ne yaptığını özetle. Eğer isteği anlamadıysan veya konu
+dışıysa, eylem üretme; nazikçe ne yapabildiğini söyle.
+suggestions: 2-4 kısa takip önerisi (tıklanabilir çip metni gibi, ör. "Sadece açık olanlar",
+"Daha yakın" / "Only open ones", "Closer").
 """
 
 _client: genai.Client | None = None

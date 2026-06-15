@@ -35,6 +35,7 @@ class ChatContext(BaseModel):
     """Modelin karar verirken kullandığı bağlam: o anki filtreler, görünür mekanlar ve
     kullanıcının kayıtlı listeleri."""
 
+    locale: str = "tr"  # arayüz dili (tr/en) — modelin yanıt dili
     categories: list[str] = []
     cuisines: list[str] = []
     max_distance: int | None = None
