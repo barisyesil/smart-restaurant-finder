@@ -32,18 +32,16 @@ export function BottomSheet({ children }: { children: ReactNode }) {
           open ? 'translate-y-0' : 'translate-y-[120%]',
         )}
       >
-        {/* Tutamaç + büyük, belirgin kapatma butonu */}
-        <div className="relative flex shrink-0 items-center justify-center pb-1 pt-3">
-          <span className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            aria-label="Kapat"
-            className="absolute right-3 top-2 flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors active:scale-95 hover:bg-accent hover:text-foreground"
-          >
-            <ChevronDown className="h-6 w-6" />
-          </button>
-        </div>
+        {/* Tüm başlık alanı tıklanabilir kapatma bölgesi: geniş dokunma hedefi, kırpılma yok */}
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="Paneli kapat"
+          className="flex w-full shrink-0 flex-col items-center gap-1 pb-2 pt-3 text-muted-foreground transition-colors active:bg-muted/60"
+        >
+          <span className="h-1.5 w-12 rounded-full bg-muted-foreground/40" />
+          <ChevronDown className="h-5 w-5" />
+        </button>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
       </div>

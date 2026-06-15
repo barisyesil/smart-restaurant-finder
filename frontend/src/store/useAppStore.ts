@@ -30,8 +30,8 @@ export const useAppStore = create<AppState>((set) => ({
   selectPlace: (selectedPlaceId) =>
     set(selectedPlaceId ? { selectedPlaceId, sheetOpen: true } : { selectedPlaceId }),
   setCustomLocation: (customLocation) => set({ customLocation }),
-  // Nav sekmesine basınca (mobil) içerik panelini aç.
-  setView: (view) => set({ view, sheetOpen: true }),
+  // Nav sekmesine basınca: görünümü değiştir, açık mekan detayını kapat, paneli aç.
+  setView: (view) => set({ view, sheetOpen: true, selectedPlaceId: null }),
   setAuthDialogOpen: (authDialogOpen) => set({ authDialogOpen }),
   setChatOpen: (chatOpen) => set({ chatOpen }),
   setSheetOpen: (sheetOpen) => set({ sheetOpen }),
