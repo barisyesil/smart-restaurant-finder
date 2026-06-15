@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.auth import router as auth_router
 from app.api.places import router as places_router
+from app.api.users import router as users_router
 from app.core.config import settings
 from app.db.session import init_db
 
@@ -31,6 +32,7 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     app.include_router(auth_router)
+    app.include_router(users_router)
     app.include_router(places_router)
 
     return app
