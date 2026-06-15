@@ -1,0 +1,147 @@
+{
+  "common": {
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out"
+  },
+  "nav": {
+    "discover": "Discover",
+    "favorites": "Favorites",
+    "wishlist": "Wishlist",
+    "visited": "Visited",
+    "profile": "Profile"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "lang": {
+    "switch": "Change language"
+  },
+  "auth": {
+    "loginTitle": "Log in",
+    "registerTitle": "Sign up",
+    "subtitle": "Save your favorite, wishlist and visited places to your account.",
+    "email": "Email",
+    "password": "Password",
+    "wrongCredentials": "Wrong email or password.",
+    "loginFailed": "Login failed.",
+    "emailTaken": "This email is already registered.",
+    "registerFailed": "Sign up failed.",
+    "switchToRegister": "No account? Sign up",
+    "switchToLogin": "Already have an account? Log in"
+  },
+  "discover": {
+    "title": "Smart Restaurant Finder",
+    "subtitleCount": "{{count}} best matches for you",
+    "locating": "Getting your location…",
+    "waitingLocation": "Waiting for location",
+    "surprise": "Surprise me",
+    "geoHint": "{{error}} You can search for a location above."
+  },
+  "location": {
+    "placeholder": "Search location (e.g. Kadıköy)",
+    "backToMine": "Back to my location"
+  },
+  "filters": {
+    "button": "Filters",
+    "title": "Your preferences",
+    "description": "Recommendations are re-ranked based on these preferences.",
+    "maxDistance": "Maximum distance",
+    "cuisine": "Cuisine",
+    "priceRange": "Price range",
+    "reset": "Reset preferences",
+    "anyPrice": "Any",
+    "openNow": "Open"
+  },
+  "categories": {
+    "restaurant": "Restaurant",
+    "cafe": "Cafe",
+    "fast_food": "Fast Food",
+    "place": "Place"
+  },
+  "cuisines": {
+    "turkish_restaurant": "Turkish",
+    "pizza_restaurant": "Pizza",
+    "hamburger_restaurant": "Burger",
+    "coffee_shop": "Coffee",
+    "dessert_shop": "Dessert",
+    "seafood_restaurant": "Seafood",
+    "bakery": "Bakery",
+    "bar": "Bar"
+  },
+  "place": {
+    "matchBadge": "{{percent}}% match",
+    "open": "Open",
+    "closed": "Closed",
+    "loading": "Loading places…",
+    "loadError": "Could not load places.",
+    "empty": "No matching places found."
+  },
+  "detail": {
+    "loadError": "Could not load details.",
+    "matchTitle": "Match for you",
+    "matchValue": "{{percent}}%",
+    "reviews": "{{count}} reviews",
+    "away": "{{distance}} away",
+    "directions": "Directions",
+    "share": "Share",
+    "visited": "Visited",
+    "visit": "Mark visited",
+    "hours": "Opening Hours",
+    "website": "Website",
+    "addWishlist": "Add to wishlist",
+    "addFavorite": "Add to favorites"
+  },
+  "profile": {
+    "guest": "Guest",
+    "loggedIn": "Signed in",
+    "guestHint": "Sign in to sync your data across devices",
+    "favorites": "Favorites",
+    "wishlist": "Wishlist",
+    "visited": "Visited",
+    "loginRegister": "Log in / Sign up"
+  },
+  "saved": {
+    "favoritesTitle": "My Favorites",
+    "favoritesEmpty": "No favorites yet. Add one with ❤️ from a place's detail.",
+    "wishlistTitle": "My Wishlist",
+    "wishlistEmpty": "Your wishlist is empty. Add places with 🔖 from their detail.",
+    "visitedTitle": "Places I've Visited",
+    "visitedEmpty": "You haven't marked any visits yet. Use \"Mark visited\" from a place's detail.",
+    "count": "{{count}} places"
+  },
+  "map": {
+    "youAreHere": "You are here",
+    "noApiKey": "Google Maps API key (VITE_GOOGLE_MAPS_API_KEY) is not configured."
+  },
+  "app": {
+    "waitingLocation": "Waiting for location to load the map…"
+  },
+  "chat": {
+    "title": "Smart Assistant",
+    "subtitle": "Recommend, filter, explore",
+    "open": "Open AI assistant",
+    "close": "Close",
+    "placeholder": "Type something…",
+    "thinking": "Thinking…",
+    "greeting": "Hi! I can recommend places and tune the filters for you. Try \"recommend a budget-friendly coffee shop within walking distance\" or \"what are my favorites?\"",
+    "suggestion1": "Recommend me a place",
+    "suggestion2": "Open cafes nearby",
+    "suggestion3": "What are my favorites?",
+    "errorGeneric": "I couldn't respond right now, could you try again?",
+    "errorNoKey": "The AI assistant isn't configured yet (GEMINI_API_KEY missing on the server).",
+    "errorQuota": "The AI assistant's quota/credits are currently exhausted. Please try again later."
+  },
+  "units": {
+    "min": "min"
+  },
+  "price": {
+    "free": "Free"
+  },
+  "geo": {
+    "unsupported": "Your browser doesn't support geolocation."
+  }
+}

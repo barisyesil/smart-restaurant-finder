@@ -1,15 +1,12 @@
 import { Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { PreferencesSheet } from '@/features/preferences/PreferencesSheet'
 import { cn } from '@/lib/utils'
 import { usePreferencesStore } from '@/store/usePreferencesStore'
 
-const CATEGORIES: { value: string; label: string }[] = [
-  { value: 'restaurant', label: 'Restoran' },
-  { value: 'cafe', label: 'Kafe' },
-  { value: 'fast_food', label: 'Fast Food' },
-]
+const CATEGORIES = ['restaurant', 'cafe', 'fast_food']
 
 function Chip({
   active,
@@ -34,6 +31,7 @@ function Chip({
 }
 
 export function QuickFilters() {
+  const { t } = useTranslation()
   const categories = usePreferencesStore((state) => state.categories)
   const toggleCategory = usePreferencesStore((state) => state.toggleCategory)
   const openNow = usePreferencesStore((state) => state.openNow)
@@ -43,16 +41,16 @@ export function QuickFilters() {
     <div className="flex flex-wrap items-center gap-1.5">
       {CATEGORIES.map((category) => (
         <Chip
-          key={category.value}
-          active={categories.includes(category.value)}
-          onClick={() => toggleCategory(category.value)}
+          key={category}
+          active={categories.includes(category)}
+          onClick={() => toggleCategory(category)}
         >
-          {category.label}
+          {t(`categories.${category}`)}
         </Chip>
       ))}
       <Chip active={openNow} onClick={() => setOpenNow(!openNow)}>
         <Clock className="mr-1 h-3.5 w-3.5" />
-        Açık
+        {t('filters.openNow')}
       </Chip>
       <PreferencesSheet />
     </div>

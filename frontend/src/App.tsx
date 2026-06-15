@@ -1,5 +1,8 @@
+import { useTranslation } from 'react-i18next'
+
 import { AccountButton } from '@/components/AccountButton'
 import { BottomSheet } from '@/components/BottomSheet'
+import { LanguageToggle } from '@/components/LanguageToggle'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthDialog } from '@/features/auth/AuthDialog'
 import { ChatWidget } from '@/features/chat/ChatWidget'
@@ -14,6 +17,7 @@ import { usePreferencesStore } from '@/store/usePreferencesStore'
 import { useSavedPlacesStore } from '@/store/useSavedPlacesStore'
 
 function App() {
+  const { t } = useTranslation()
   useAccountSync()
   const isMobile = useIsMobile()
   const { coords, error: geoError, loading: geoLoading } = useGeolocation()
@@ -75,12 +79,13 @@ function App() {
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-muted p-6 text-center text-muted-foreground">
-            {geoError ?? 'Harita için konum bekleniyor…'}
+            {geoError ?? t('app.waitingLocation')}
           </div>
         )}
 
         <div className="absolute right-3 top-3 z-50 flex items-center gap-2">
           <AccountButton />
+          <LanguageToggle />
           <ThemeToggle />
         </div>
       </div>

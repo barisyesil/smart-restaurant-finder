@@ -23,6 +23,7 @@ export interface ChatSavedPlace {
 }
 
 export interface ChatContext {
+  locale: string
   categories: string[]
   cuisines: string[]
   max_distance: number | null

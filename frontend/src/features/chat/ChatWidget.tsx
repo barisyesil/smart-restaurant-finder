@@ -1,5 +1,6 @@
 import { Loader2, Send, Sparkles, Star, X } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import type { PlaceRecommendation } from '@/api/chat'
 import { Button } from '@/components/ui/button'
@@ -23,9 +24,11 @@ function RecommendationCard({
   place: RecommendedPlace | undefined
   onOpen: () => void
 }) {
+  const { t } = useTranslation()
   const meta = getCategoryMeta(place?.category ?? '')
   const Icon = meta.Icon
-  const price = formatPriceLevel(place?.price_level ?? null)
+  const label = place ? t(`categories.${place.category}`) : t('categories.place')
+  const price = formatPriceLevel(place?.price_level ?? null, t('price.free'))
 
   return (
     <button
@@ -53,7 +56,7 @@ function RecommendationCard({
       <p className="text-xs leading-snug text-muted-foreground">{recommendation.reason}</p>
       {place && (
         <div className="flex flex-wrap gap-1.5 text-[11px] text-muted-foreground">
-          <span>{meta.label}</span>
+          <span>{label}</span>
           <span>· {formatDistance(place.distance_m)}</span>
           {price && <span>· {price}</span>}
         </div>
@@ -63,6 +66,7 @@ function RecommendationCard({
 }
 
 export function ChatWidget({ places }: ChatWidgetProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const { messages, suggestions, send, isPending } = useChat(places)
@@ -86,7 +90,7 @@ export function ChatWidget({ places }: ChatWidgetProps) {
       <Button
         size="icon"
         onClick={() => setOpen(true)}
-        aria-label="AI asistanını aç"
+        aria-label={t('chat.open')}
         className="fixed bottom-4 right-4 z-[60] h-14 w-14 rounded-full shadow-lg"
       >
         <Sparkles className="h-6 w-6" />
@@ -102,8 +106,8 @@ export function ChatWidget({ places }: ChatWidgetProps) {
             <Sparkles className="h-4 w-4" />
           </span>
           <div className="leading-tight">
-            <p className="text-sm font-semibold">Akıllı Asistan</p>
-            <p className="text-xs text-muted-foreground">Öner, filtrele, keşfet</p>
+            <p className="text-sm font-semibold">{t('chat.title')}</p>
+            <p className="text-xs text-muted-foreground">{t('chat.subtitle')}</p>
           </div>
         </div>
         <Button
@@ -111,7 +115,7 @@ export function ChatWidget({ places }: ChatWidgetProps) {
           size="icon"
           className="h-7 w-7"
           onClick={() => setOpen(false)}
-          aria-label="Kapat"
+          aria-label={t('chat.close')}
         >
           <X className="h-4 w-4" />
         </Button>
@@ -150,7 +154,7 @@ export function ChatWidget({ places }: ChatWidgetProps) {
           <div className="flex justify-start">
             <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-muted px-3 py-2 text-sm text-muted-foreground">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Düşünüyor…
+              {t('chat.thinking')}
             </div>
           </div>
         )}
@@ -175,7 +179,7 @@ export function ChatWidget({ places }: ChatWidgetProps) {
         <Input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="Bir şeyler yaz…"
+          placeholder={t('chat.placeholder')}
           disabled={isPending}
           autoFocus
         />

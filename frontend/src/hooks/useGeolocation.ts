@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export interface Coordinates {
   lat: number
@@ -14,9 +15,10 @@ interface GeolocationState {
 const isSupported = 'geolocation' in navigator
 
 export function useGeolocation(): GeolocationState {
+  const { t } = useTranslation()
   const [state, setState] = useState<GeolocationState>(() => ({
     coords: null,
-    error: isSupported ? null : 'Tarayıcınız konum desteği sunmuyor.',
+    error: isSupported ? null : t('geo.unsupported'),
     loading: isSupported,
   }))
 

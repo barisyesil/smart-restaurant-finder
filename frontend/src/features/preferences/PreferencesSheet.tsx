@@ -1,4 +1,5 @@
 import { SlidersHorizontal } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -15,26 +16,21 @@ import { formatDistance } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { usePreferencesStore } from '@/store/usePreferencesStore'
 
-const PRICE_OPTIONS: { label: string; value: number | null }[] = [
-  { label: 'Farketmez', value: null },
-  { label: '₺', value: 1 },
-  { label: '₺₺', value: 2 },
-  { label: '₺₺₺', value: 3 },
-  { label: '₺₺₺₺', value: 4 },
-]
+const PRICE_VALUES: (number | null)[] = [null, 1, 2, 3, 4]
 
-const CUISINE_OPTIONS: { label: string; value: string }[] = [
-  { label: 'Türk', value: 'turkish_restaurant' },
-  { label: 'Pizza', value: 'pizza_restaurant' },
-  { label: 'Burger', value: 'hamburger_restaurant' },
-  { label: 'Kahve', value: 'coffee_shop' },
-  { label: 'Tatlı', value: 'dessert_shop' },
-  { label: 'Deniz Ürünleri', value: 'seafood_restaurant' },
-  { label: 'Fırın', value: 'bakery' },
-  { label: 'Bar', value: 'bar' },
+const CUISINE_VALUES = [
+  'turkish_restaurant',
+  'pizza_restaurant',
+  'hamburger_restaurant',
+  'coffee_shop',
+  'dessert_shop',
+  'seafood_restaurant',
+  'bakery',
+  'bar',
 ]
 
 export function PreferencesSheet() {
+  const { t } = useTranslation()
   const maxDistance = usePreferencesStore((state) => state.maxDistance)
   const setMaxDistance = usePreferencesStore((state) => state.setMaxDistance)
   const maxPrice = usePreferencesStore((state) => state.maxPrice)
@@ -48,19 +44,19 @@ export function PreferencesSheet() {
       <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-full">
           <SlidersHorizontal className="h-3.5 w-3.5" />
-          Filtreler
+          {t('filters.button')}
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[320px] sm:w-[360px]">
         <SheetHeader>
-          <SheetTitle>Tercihlerin</SheetTitle>
-          <SheetDescription>Öneriler bu tercihlere göre yeniden sıralanır.</SheetDescription>
+          <SheetTitle>{t('filters.title')}</SheetTitle>
+          <SheetDescription>{t('filters.description')}</SheetDescription>
         </SheetHeader>
 
         <div className="flex flex-col gap-6 px-4">
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <Label>Maksimum mesafe</Label>
+              <Label>{t('filters.maxDistance')}</Label>
               <span className="text-sm font-medium text-muted-foreground">
                 {formatDistance(maxDistance)}
               </span>
@@ -75,43 +71,43 @@ export function PreferencesSheet() {
           </div>
 
           <div>
-            <Label className="mb-2 block">Mutfak</Label>
+            <Label className="mb-2 block">{t('filters.cuisine')}</Label>
             <div className="flex flex-wrap gap-1.5">
-              {CUISINE_OPTIONS.map((option) => (
+              {CUISINE_VALUES.map((value) => (
                 <Button
-                  key={option.value}
+                  key={value}
                   type="button"
-                  variant={cuisines.includes(option.value) ? 'default' : 'outline'}
+                  variant={cuisines.includes(value) ? 'default' : 'outline'}
                   size="sm"
                   className="rounded-full"
-                  onClick={() => toggleCuisine(option.value)}
+                  onClick={() => toggleCuisine(value)}
                 >
-                  {option.label}
+                  {t(`cuisines.${value}`)}
                 </Button>
               ))}
             </div>
           </div>
 
           <div>
-            <Label className="mb-2 block">Fiyat aralığı</Label>
+            <Label className="mb-2 block">{t('filters.priceRange')}</Label>
             <div className="flex flex-wrap gap-1.5">
-              {PRICE_OPTIONS.map((option) => (
+              {PRICE_VALUES.map((value) => (
                 <Button
-                  key={option.label}
+                  key={value ?? 'any'}
                   type="button"
-                  variant={maxPrice === option.value ? 'default' : 'outline'}
+                  variant={maxPrice === value ? 'default' : 'outline'}
                   size="sm"
                   className={cn('rounded-full')}
-                  onClick={() => setMaxPrice(option.value)}
+                  onClick={() => setMaxPrice(value)}
                 >
-                  {option.label}
+                  {value === null ? t('filters.anyPrice') : '₺'.repeat(value)}
                 </Button>
               ))}
             </div>
           </div>
 
           <Button variant="ghost" size="sm" onClick={reset} className="self-start">
-            Tercihleri sıfırla
+            {t('filters.reset')}
           </Button>
         </div>
       </SheetContent>

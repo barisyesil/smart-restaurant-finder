@@ -1,4 +1,5 @@
 import { LogOut, User } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -13,6 +14,7 @@ import { useAppStore } from '@/store/useAppStore'
 import { useAuthStore } from '@/store/useAuthStore'
 
 export function AccountButton() {
+  const { t } = useTranslation()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const setAuthDialogOpen = useAppStore((state) => state.setAuthDialogOpen)
@@ -20,7 +22,7 @@ export function AccountButton() {
   if (!user) {
     return (
       <Button size="sm" className="rounded-full shadow" onClick={() => setAuthDialogOpen(true)}>
-        Giriş yap
+        {t('common.login')}
       </Button>
     )
   }
@@ -37,7 +39,7 @@ export function AccountButton() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
-          Çıkış yap
+          {t('common.logout')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

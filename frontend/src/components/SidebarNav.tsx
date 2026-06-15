@@ -1,23 +1,25 @@
 import { Bookmark, CheckCheck, Compass, Heart, User, type LucideIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { cn } from '@/lib/utils'
 import { useAppStore, type SidebarView } from '@/store/useAppStore'
 
-const ITEMS: { view: SidebarView; label: string; Icon: LucideIcon }[] = [
-  { view: 'discover', label: 'Keşfet', Icon: Compass },
-  { view: 'favorites', label: 'Favoriler', Icon: Heart },
-  { view: 'wishlist', label: 'Gidilecek', Icon: Bookmark },
-  { view: 'visited', label: 'Gittiğim', Icon: CheckCheck },
-  { view: 'profile', label: 'Profil', Icon: User },
+const ITEMS: { view: SidebarView; labelKey: string; Icon: LucideIcon }[] = [
+  { view: 'discover', labelKey: 'nav.discover', Icon: Compass },
+  { view: 'favorites', labelKey: 'nav.favorites', Icon: Heart },
+  { view: 'wishlist', labelKey: 'nav.wishlist', Icon: Bookmark },
+  { view: 'visited', labelKey: 'nav.visited', Icon: CheckCheck },
+  { view: 'profile', labelKey: 'nav.profile', Icon: User },
 ]
 
 export function SidebarNav() {
+  const { t } = useTranslation()
   const view = useAppStore((state) => state.view)
   const setView = useAppStore((state) => state.setView)
 
   return (
     <nav className="flex border-b bg-background">
-      {ITEMS.map(({ view: itemView, label, Icon }) => {
+      {ITEMS.map(({ view: itemView, labelKey, Icon }) => {
         const active = view === itemView
         return (
           <button
@@ -30,7 +32,7 @@ export function SidebarNav() {
             )}
           >
             <Icon className="h-5 w-5" />
-            {label}
+            {t(labelKey)}
             {active && <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-primary" />}
           </button>
         )

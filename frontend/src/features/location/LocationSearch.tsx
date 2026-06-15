@@ -1,5 +1,6 @@
 import { Loader2, MapPin, Navigation, Search } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { geocode, type GeocodeResult } from '@/api/geocode'
 import { Button } from '@/components/ui/button'
@@ -7,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/store/useAppStore'
 
 export function LocationSearch() {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<GeocodeResult[]>([])
   const [loading, setLoading] = useState(false)
@@ -46,7 +48,7 @@ export function LocationSearch() {
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Konum ara (örn. Kadıköy)"
+            placeholder={t('location.placeholder')}
             className="pl-8"
           />
         </div>
@@ -62,7 +64,7 @@ export function LocationSearch() {
           className="mt-1 h-7 gap-1 px-2 text-xs text-muted-foreground"
           onClick={resetToMyLocation}
         >
-          <Navigation className="h-3 w-3" /> Konumuma dön
+          <Navigation className="h-3 w-3" /> {t('location.backToMine')}
         </Button>
       )}
 

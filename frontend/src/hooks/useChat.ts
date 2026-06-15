@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   sendChat,
@@ -9,6 +10,7 @@ import {
   type PlaceRecommendation,
 } from '@/api/chat'
 import { geocode } from '@/api/geocode'
+import i18n from '@/i18n'
 import { useAppStore } from '@/store/useAppStore'
 import { usePreferencesStore } from '@/store/usePreferencesStore'
 import { useSavedPlacesStore, type SavedPlace } from '@/store/useSavedPlacesStore'
@@ -19,13 +21,6 @@ export interface ChatBubble {
   text: string
   recommendations?: PlaceRecommendation[]
 }
-
-const GREETING: ChatBubble = {
-  role: 'model',
-  text: 'Merhaba! Sana mekan önerebilir, filtreleri senin için ayarlayabilirim. Örneğin "yürüme mesafesinde bütçe dostu bir kahveci öner" ya da "favorilerim neler?" yaz.',
-}
-
-const INITIAL_SUGGESTIONS = ['Bana bir yer öner', 'Yakındaki açık kafeler', 'Favorilerim neler?']
 
 /** Modelin döndürdüğü yapılandırılmış eylemleri store'a uygular.
  *  apply_filters'ta null alanlar mevcut değeri korur (artımlı güncelleme). */
@@ -61,6 +56,7 @@ function buildContext(places: RecommendedPlace[]): ChatContext {
   const prefs = usePreferencesStore.getState()
   const saved = useSavedPlacesStore.getState()
   return {
+    locale: i18n.language,
     categories: prefs.categories,
     cuisines: prefs.cuisines,
     max_distance: prefs.maxDistance,
@@ -85,8 +81,16 @@ function buildContext(places: RecommendedPlace[]): ChatContext {
 }
 
 export function useChat(places: RecommendedPlace[]) {
-  const [messages, setMessages] = useState<ChatBubble[]>([GREETING])
-  const [suggestions, setSuggestions] = useState<string[]>(INITIAL_SUGGESTIONS)
+  const { t } = useTranslation()
+  // Lazy init: greeting + başlangıç önerileri o anki dilde (effect'te setState yok).
+  const [messages, setMessages] = useState<ChatBubble[]>(() => [
+    { role: 'model', text: t('chat.greeting') },
+  ])
+  const [suggestions, setSuggestions] = useState<string[]>(() => [
+    t('chat.suggestion1'),
+    t('chat.suggestion2'),
+    t('chat.suggestion3'),
+  ])
 
   const mutation = useMutation({
     mutationFn: async ({ text, history }: { text: string; history: ChatMessage[] }) => {
@@ -103,11 +107,11 @@ export function useChat(places: RecommendedPlace[]) {
     },
     onError: (error) => {
       const status = (error as { status?: number }).status
-      let text = 'Şu an yanıt veremedim, lütfen tekrar dener misin?'
+      let text = t('chat.errorGeneric')
       if (status === 503) {
-        text = 'AI asistanı henüz yapılandırılmamış (sunucuda GEMINI_API_KEY eksik).'
+        text = t('chat.errorNoKey')
       } else if (status === 429) {
-        text = 'AI asistanının kotası/kredisi şu an dolu. Biraz sonra tekrar dener misin?'
+        text = t('chat.errorQuota')
       }
       setMessages((prev) => [...prev, { role: 'model', text }])
     },
@@ -116,8 +120,9 @@ export function useChat(places: RecommendedPlace[]) {
   function send(text: string) {
     const trimmed = text.trim()
     if (!trimmed || mutation.isPending) return
+    // İlk eleman karşılama mesajı; geçmişe dahil etme.
     const history: ChatMessage[] = messages
-      .filter((message) => message !== GREETING)
+      .slice(1)
       .map((message) => ({ role: message.role, text: message.text }))
     setMessages((prev) => [...prev, { role: 'user', text: trimmed }])
     setSuggestions([])

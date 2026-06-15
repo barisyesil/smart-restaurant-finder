@@ -1,5 +1,6 @@
 import { APIProvider, Map, Marker, useApiIsLoaded, useMap } from '@vis.gl/react-google-maps'
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import type { Coordinates } from '@/hooks/useGeolocation'
 import { getCategoryMeta } from '@/lib/constants'
@@ -40,6 +41,7 @@ interface MarkersProps {
 
 // google.maps yüklendikten sonra render edilir (ikonlar google.maps.Size/Point kullanır).
 function Markers({ userCoords, places, selectedPlaceId, onSelectPlace }: MarkersProps) {
+  const { t } = useTranslation()
   const loaded = useApiIsLoaded()
   if (!loaded) return null
 
@@ -49,7 +51,7 @@ function Markers({ userCoords, places, selectedPlaceId, onSelectPlace }: Markers
         <Marker
           position={{ lat: userCoords.lat, lng: userCoords.lon }}
           icon={markerIcon(userMarkerUrl, 1.15)}
-          title="Buradasınız"
+          title={t('map.youAreHere')}
           zIndex={20}
         />
       )}
@@ -104,10 +106,11 @@ export function MapView({
   selectedPlaceId,
   onSelectPlace,
 }: MapViewProps) {
+  const { t } = useTranslation()
   if (!API_KEY) {
     return (
       <div className="flex h-full items-center justify-center p-6 text-center text-muted-foreground">
-        Google Maps API anahtarı (VITE_GOOGLE_MAPS_API_KEY) ayarlanmamış.
+        {t('map.noApiKey')}
       </div>
     )
   }

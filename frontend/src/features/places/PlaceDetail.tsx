@@ -10,6 +10,7 @@ import {
   Sparkles,
   Star,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { addSaved, removeSaved, type SavedKind } from '@/api/me'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,7 @@ interface PlaceDetailProps {
 }
 
 export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
+  const { t } = useTranslation()
   const { data: detail, isLoading, isError } = usePlaceDetails(placeId)
   const favorites = useSavedPlacesStore((state) => state.favorites)
   const wishlist = useSavedPlacesStore((state) => state.wishlist)
@@ -43,7 +45,8 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
   const place = detail ?? summary
   const meta = getCategoryMeta(place?.category ?? 'restaurant')
   const Icon = meta.Icon
-  const price = formatPriceLevel(place?.price_level ?? null)
+  const categoryLabel = t(`categories.${place?.category ?? 'restaurant'}`)
+  const price = formatPriceLevel(place?.price_level ?? null, t('price.free'))
 
   function buildSaved(): SavedPlace | null {
     if (!place) return null
@@ -134,7 +137,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
             size="icon"
             onClick={handleWishlist}
             className="rounded-full shadow"
-            aria-label="Gitmek istediklerime ekle"
+            aria-label={t('detail.addWishlist')}
           >
             <Bookmark
               className={cn('h-4 w-4', isWishlisted && 'fill-primary text-primary')}
@@ -145,7 +148,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
             size="icon"
             onClick={handleFavorite}
             className="rounded-full shadow"
-            aria-label="Favorilere ekle"
+            aria-label={t('detail.addFavorite')}
           >
             <Heart className={cn('h-4 w-4', isFavorite && 'fill-red-500 text-red-500')} />
           </Button>
@@ -154,12 +157,12 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
 
       <div className="p-4">
         {isError && !summary ? (
-          <p className="text-sm text-destructive">Detaylar yüklenemedi.</p>
+          <p className="text-sm text-destructive">{t('detail.loadError')}</p>
         ) : (
           <>
             <h2 className="text-lg font-semibold">{place?.name}</h2>
             <div className="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
-              <span>{meta.label}</span>
+              <span>{categoryLabel}</span>
               {place?.rating != null && (
                 <span className="flex items-center gap-0.5">
                   <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
@@ -175,7 +178,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
                     place.open_now ? 'text-green-600' : 'text-destructive',
                   )}
                 >
-                  · {place.open_now ? 'Açık' : 'Kapalı'}
+                  · {place.open_now ? t('place.open') : t('place.closed')}
                 </span>
               )}
             </div>
@@ -183,9 +186,9 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
             {summary?.score != null && (
               <div className="mt-3 rounded-xl bg-primary/5 p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Senin için uygunluk</span>
+                  <span className="text-sm font-medium">{t('detail.matchTitle')}</span>
                   <span className="text-lg font-bold text-primary">
-                    %{Math.round(summary.score)}
+                    {t('detail.matchValue', { percent: Math.round(summary.score) })}
                   </span>
                 </div>
                 {summary.reasons.length > 0 && (
@@ -204,10 +207,11 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
                 <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   {place?.rating != null && (
                     <span>
-                      {place.rating.toFixed(1)}★ · {place.user_ratings_total ?? 0} yorum
+                      {place.rating.toFixed(1)}★ ·{' '}
+                      {t('detail.reviews', { count: place.user_ratings_total ?? 0 })}
                     </span>
                   )}
-                  <span>{formatDistance(summary.distance_m)} uzaklıkta</span>
+                  <span>{t('detail.away', { distance: formatDistance(summary.distance_m) })}</span>
                 </div>
               </div>
             )}
@@ -217,7 +221,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
               <Button asChild variant="outline" className="h-auto flex-col gap-1 py-2">
                 <a href={directionsUrl} target="_blank" rel="noreferrer">
                   <Navigation className="h-4 w-4" />
-                  <span className="text-xs">Nasıl giderim</span>
+                  <span className="text-xs">{t('detail.directions')}</span>
                 </a>
               </Button>
               <Button
@@ -226,7 +230,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
                 onClick={handleShare}
               >
                 <Share2 className="h-4 w-4" />
-                <span className="text-xs">Paylaş</span>
+                <span className="text-xs">{t('detail.share')}</span>
               </Button>
               <Button
                 variant={isVisited ? 'default' : 'outline'}
@@ -234,7 +238,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
                 onClick={handleVisited}
               >
                 <Check className="h-4 w-4" />
-                <span className="text-xs">{isVisited ? 'Gidildi' : 'Gittim'}</span>
+                <span className="text-xs">{isVisited ? t('detail.visited') : t('detail.visit')}</span>
               </Button>
             </div>
 
@@ -245,7 +249,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
               <Skeleton className="mt-4 h-20 w-full" />
             ) : detail?.opening_hours.length ? (
               <div className="mt-4">
-                <p className="mb-1 text-sm font-medium">Çalışma Saatleri</p>
+                <p className="mb-1 text-sm font-medium">{t('detail.hours')}</p>
                 <ul className="space-y-0.5 text-xs text-muted-foreground">
                   {detail.opening_hours.map((line) => (
                     <li key={line}>{line}</li>
@@ -267,7 +271,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
                 <Button variant="outline" asChild className="justify-start">
                   <a href={detail.website} target="_blank" rel="noreferrer">
                     <Globe className="mr-2 h-4 w-4" />
-                    Web sitesi
+                    {t('detail.website')}
                   </a>
                 </Button>
               )}

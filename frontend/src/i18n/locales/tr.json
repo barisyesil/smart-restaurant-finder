@@ -1,0 +1,147 @@
+{
+  "common": {
+    "login": "Giriş yap",
+    "register": "Kayıt ol",
+    "logout": "Çıkış yap"
+  },
+  "nav": {
+    "discover": "Keşfet",
+    "favorites": "Favoriler",
+    "wishlist": "Gidilecek",
+    "visited": "Gittiğim",
+    "profile": "Profil"
+  },
+  "theme": {
+    "toggle": "Tema değiştir",
+    "light": "Açık",
+    "dark": "Koyu",
+    "system": "Sistem"
+  },
+  "lang": {
+    "switch": "Dili değiştir"
+  },
+  "auth": {
+    "loginTitle": "Giriş yap",
+    "registerTitle": "Kayıt ol",
+    "subtitle": "Favori, gidilecek ve gittiğin yerleri hesabına kaydet.",
+    "email": "E-posta",
+    "password": "Parola",
+    "wrongCredentials": "E-posta veya parola hatalı.",
+    "loginFailed": "Giriş başarısız oldu.",
+    "emailTaken": "Bu e-posta zaten kayıtlı.",
+    "registerFailed": "Kayıt başarısız oldu.",
+    "switchToRegister": "Hesabın yok mu? Kayıt ol",
+    "switchToLogin": "Zaten hesabın var mı? Giriş yap"
+  },
+  "discover": {
+    "title": "Akıllı Restoran Öneri",
+    "subtitleCount": "Senin için en uygun {{count}} mekan",
+    "locating": "Konumunuz alınıyor…",
+    "waitingLocation": "Konum bekleniyor",
+    "surprise": "Sürpriz beni",
+    "geoHint": "{{error}} Yukarıdan bir konum arayabilirsiniz."
+  },
+  "location": {
+    "placeholder": "Konum ara (örn. Kadıköy)",
+    "backToMine": "Konumuma dön"
+  },
+  "filters": {
+    "button": "Filtreler",
+    "title": "Tercihlerin",
+    "description": "Öneriler bu tercihlere göre yeniden sıralanır.",
+    "maxDistance": "Maksimum mesafe",
+    "cuisine": "Mutfak",
+    "priceRange": "Fiyat aralığı",
+    "reset": "Tercihleri sıfırla",
+    "anyPrice": "Farketmez",
+    "openNow": "Açık"
+  },
+  "categories": {
+    "restaurant": "Restoran",
+    "cafe": "Kafe",
+    "fast_food": "Fast Food",
+    "place": "Mekan"
+  },
+  "cuisines": {
+    "turkish_restaurant": "Türk",
+    "pizza_restaurant": "Pizza",
+    "hamburger_restaurant": "Burger",
+    "coffee_shop": "Kahve",
+    "dessert_shop": "Tatlı",
+    "seafood_restaurant": "Deniz Ürünleri",
+    "bakery": "Fırın",
+    "bar": "Bar"
+  },
+  "place": {
+    "matchBadge": "%{{percent}} uyum",
+    "open": "Açık",
+    "closed": "Kapalı",
+    "loading": "Mekanlar yükleniyor…",
+    "loadError": "Mekanlar yüklenemedi.",
+    "empty": "Uygun mekan bulunamadı."
+  },
+  "detail": {
+    "loadError": "Detaylar yüklenemedi.",
+    "matchTitle": "Senin için uygunluk",
+    "matchValue": "%{{percent}}",
+    "reviews": "{{count}} yorum",
+    "away": "{{distance}} uzaklıkta",
+    "directions": "Nasıl giderim",
+    "share": "Paylaş",
+    "visited": "Gidildi",
+    "visit": "Gittim",
+    "hours": "Çalışma Saatleri",
+    "website": "Web sitesi",
+    "addWishlist": "Gitmek istediklerime ekle",
+    "addFavorite": "Favorilere ekle"
+  },
+  "profile": {
+    "guest": "Misafir",
+    "loggedIn": "Giriş yapıldı",
+    "guestHint": "Giriş yaparak verilerini cihazlar arasında taşı",
+    "favorites": "Favori",
+    "wishlist": "Gidilecek",
+    "visited": "Gidilen",
+    "loginRegister": "Giriş yap / Kayıt ol"
+  },
+  "saved": {
+    "favoritesTitle": "Favorilerim",
+    "favoritesEmpty": "Henüz favori eklemedin. Bir mekanın detayında ❤️ ile ekleyebilirsin.",
+    "wishlistTitle": "Gitmek İstediklerim",
+    "wishlistEmpty": "Henüz listene yer eklemedin. Mekan detayından 🔖 ile ekleyebilirsin.",
+    "visitedTitle": "Gittiğim Yerler",
+    "visitedEmpty": "Henüz gittiğin yer işaretlemedin. Mekan detayından \"Gittim\" diyebilirsin.",
+    "count": "{{count}} mekan"
+  },
+  "map": {
+    "youAreHere": "Buradasınız",
+    "noApiKey": "Google Maps API anahtarı (VITE_GOOGLE_MAPS_API_KEY) ayarlanmamış."
+  },
+  "app": {
+    "waitingLocation": "Harita için konum bekleniyor…"
+  },
+  "chat": {
+    "title": "Akıllı Asistan",
+    "subtitle": "Öner, filtrele, keşfet",
+    "open": "AI asistanını aç",
+    "close": "Kapat",
+    "placeholder": "Bir şeyler yaz…",
+    "thinking": "Düşünüyor…",
+    "greeting": "Merhaba! Sana mekan önerebilir, filtreleri senin için ayarlayabilirim. Örneğin \"yürüme mesafesinde bütçe dostu bir kahveci öner\" ya da \"favorilerim neler?\" yaz.",
+    "suggestion1": "Bana bir yer öner",
+    "suggestion2": "Yakındaki açık kafeler",
+    "suggestion3": "Favorilerim neler?",
+    "errorGeneric": "Şu an yanıt veremedim, lütfen tekrar dener misin?",
+    "errorNoKey": "AI asistanı henüz yapılandırılmamış (sunucuda GEMINI_API_KEY eksik).",
+    "errorQuota": "AI asistanının kotası/kredisi şu an dolu. Biraz sonra tekrar dener misin?"
+  },
+  "units": {
+    "min": "dk"
+  },
+  "price": {
+    "free": "Ücretsiz"
+  },
+  "geo": {
+    "unsupported": "Tarayıcınız konum desteği sunmuyor."
+  }
+}

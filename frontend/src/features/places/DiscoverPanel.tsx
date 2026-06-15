@@ -1,4 +1,5 @@
 import { Sparkles, UtensilsCrossed } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { LocationSearch } from '@/features/location/LocationSearch'
@@ -25,6 +26,7 @@ export function DiscoverPanel({
   geoError,
   coords,
 }: DiscoverPanelProps) {
+  const { t } = useTranslation()
   const selectPlace = useAppStore((state) => state.selectPlace)
 
   function surpriseMe() {
@@ -35,10 +37,10 @@ export function DiscoverPanel({
   }
 
   const subtitle = coords
-    ? `Senin için en uygun ${places.length} mekan`
+    ? t('discover.subtitleCount', { count: places.length })
     : geoLoading
-      ? 'Konumunuz alınıyor…'
-      : 'Konum bekleniyor'
+      ? t('discover.locating')
+      : t('discover.waitingLocation')
 
   return (
     <div>
@@ -48,7 +50,7 @@ export function DiscoverPanel({
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <UtensilsCrossed className="h-4 w-4" />
             </span>
-            <h1 className="text-base font-semibold tracking-tight">Akıllı Restoran Öneri</h1>
+            <h1 className="text-base font-semibold tracking-tight">{t('discover.title')}</h1>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
         </div>
@@ -63,14 +65,12 @@ export function DiscoverPanel({
           variant="secondary"
         >
           <Sparkles className="h-4 w-4" />
-          Sürpriz beni
+          {t('discover.surprise')}
         </Button>
       </div>
 
       {!coords && geoError ? (
-        <p className="p-4 text-sm text-destructive">
-          {geoError} Yukarıdan bir konum arayabilirsiniz.
-        </p>
+        <p className="p-4 text-sm text-destructive">{t('discover.geoHint', { error: geoError })}</p>
       ) : (
         <PlaceList places={places} isLoading={isLoading || geoLoading} isError={isError} />
       )}

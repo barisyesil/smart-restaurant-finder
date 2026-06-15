@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import { PlaceCard } from '@/features/places/PlaceCard'
 import { useAppStore } from '@/store/useAppStore'
 import type { RecommendedPlace } from '@/types/place'
@@ -9,17 +11,18 @@ interface PlaceListProps {
 }
 
 export function PlaceList({ places, isLoading, isError }: PlaceListProps) {
+  const { t } = useTranslation()
   const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
   const selectPlace = useAppStore((state) => state.selectPlace)
 
   if (isLoading) {
-    return <p className="p-4 text-sm text-muted-foreground">Mekanlar yükleniyor…</p>
+    return <p className="p-4 text-sm text-muted-foreground">{t('place.loading')}</p>
   }
   if (isError) {
-    return <p className="p-4 text-sm text-destructive">Mekanlar yüklenemedi.</p>
+    return <p className="p-4 text-sm text-destructive">{t('place.loadError')}</p>
   }
   if (places.length === 0) {
-    return <p className="p-4 text-sm text-muted-foreground">Uygun mekan bulunamadı.</p>
+    return <p className="p-4 text-sm text-muted-foreground">{t('place.empty')}</p>
   }
 
   return (

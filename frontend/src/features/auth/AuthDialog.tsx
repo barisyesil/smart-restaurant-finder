@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { getMe, login, register } from '@/api/auth'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ import { useAppStore } from '@/store/useAppStore'
 import { useAuthStore } from '@/store/useAuthStore'
 
 export function AuthDialog() {
+  const { t } = useTranslation()
   const open = useAppStore((state) => state.authDialogOpen)
   const setOpen = useAppStore((state) => state.setAuthDialogOpen)
 
@@ -42,11 +44,11 @@ export function AuthDialog() {
       setError(
         mode === 'login'
           ? status === 401
-            ? 'E-posta veya parola hatalı.'
-            : 'Giriş başarısız oldu.'
+            ? t('auth.wrongCredentials')
+            : t('auth.loginFailed')
           : status === 409
-            ? 'Bu e-posta zaten kayıtlı.'
-            : 'Kayıt başarısız oldu.',
+            ? t('auth.emailTaken')
+            : t('auth.registerFailed'),
       )
     } finally {
       setLoading(false)
@@ -57,15 +59,13 @@ export function AuthDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>{mode === 'login' ? 'Giriş yap' : 'Kayıt ol'}</DialogTitle>
-          <DialogDescription>
-            Favori, gidilecek ve gittiğin yerleri hesabına kaydet.
-          </DialogDescription>
+          <DialogTitle>{mode === 'login' ? t('auth.loginTitle') : t('auth.registerTitle')}</DialogTitle>
+          <DialogDescription>{t('auth.subtitle')}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="auth-email">E-posta</Label>
+            <Label htmlFor="auth-email">{t('auth.email')}</Label>
             <Input
               id="auth-email"
               type="email"
@@ -75,7 +75,7 @@ export function AuthDialog() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="auth-password">Parola</Label>
+            <Label htmlFor="auth-password">{t('auth.password')}</Label>
             <Input
               id="auth-password"
               type="password"
@@ -88,7 +88,7 @@ export function AuthDialog() {
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {mode === 'login' ? 'Giriş yap' : 'Kayıt ol'}
+            {mode === 'login' ? t('auth.loginTitle') : t('auth.registerTitle')}
           </Button>
         </form>
 
@@ -100,7 +100,7 @@ export function AuthDialog() {
           }}
           className="text-center text-sm text-muted-foreground hover:text-foreground"
         >
-          {mode === 'login' ? 'Hesabın yok mu? Kayıt ol' : 'Zaten hesabın var mı? Giriş yap'}
+          {mode === 'login' ? t('auth.switchToRegister') : t('auth.switchToLogin')}
         </button>
       </DialogContent>
     </Dialog>

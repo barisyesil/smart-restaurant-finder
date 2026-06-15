@@ -1,4 +1,5 @@
 import { Footprints, Sparkles, Star } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Badge } from '@/components/ui/badge'
 import {
@@ -19,8 +20,10 @@ interface PlaceCardProps {
 }
 
 export function PlaceCard({ place, selected, onSelect, score, reasons }: PlaceCardProps) {
-  const { label, color, Icon } = getCategoryMeta(place.category)
-  const price = formatPriceLevel(place.price_level)
+  const { t } = useTranslation()
+  const { color, Icon } = getCategoryMeta(place.category)
+  const label = t(`categories.${place.category}`)
+  const price = formatPriceLevel(place.price_level, t('price.free'))
   const matchPercent = score != null ? Math.round(score) : null
 
   return (
@@ -45,7 +48,7 @@ export function PlaceCard({ place, selected, onSelect, score, reasons }: PlaceCa
           <p className="truncate font-semibold leading-tight">{place.name}</p>
           {matchPercent != null && (
             <Badge className="shrink-0 bg-primary/10 font-semibold text-primary hover:bg-primary/10">
-              %{matchPercent} uyum
+              {t('place.matchBadge', { percent: matchPercent })}
             </Badge>
           )}
         </div>
@@ -91,12 +94,12 @@ export function PlaceCard({ place, selected, onSelect, score, reasons }: PlaceCa
                   : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400',
               )}
             >
-              {place.open_now ? 'Açık' : 'Kapalı'}
+              {place.open_now ? t('place.open') : t('place.closed')}
             </Badge>
           )}
           <Badge variant="secondary" className="gap-1 border-transparent font-normal">
             <Footprints className="h-3 w-3" />
-            {formatDistance(place.distance_m)} · {formatWalkingTime(place.distance_m)}
+            {formatDistance(place.distance_m)} · {formatWalkingTime(place.distance_m, t('units.min'))}
           </Badge>
         </div>
       </div>
