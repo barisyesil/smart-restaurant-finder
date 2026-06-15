@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24 * 7  # 7 gün
 
+    # Gemini (AI asistanı). Anahtar sunucuda kalır; yoksa /chat 503 döner.
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
