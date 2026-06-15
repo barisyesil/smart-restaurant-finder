@@ -11,7 +11,7 @@ export function LanguageToggle() {
     <Button
       variant="outline"
       size="icon"
-      className="rounded-full"
+      className="rounded-full bg-background shadow-md"
       onClick={() => changeLanguage(next)}
       aria-label={t('lang.switch')}
     >

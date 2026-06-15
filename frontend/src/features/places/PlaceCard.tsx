@@ -79,7 +79,7 @@ export function PlaceCard({ place, selected, onSelect, score, reasons }: PlaceCa
         {reasons && reasons.length > 0 && (
           <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-primary">
             <Sparkles className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{reasons.join(' · ')}</span>
+            <span className="truncate">{reasons.map((r) => t(`reasons.${r}`)).join(' · ')}</span>
           </p>
         )}
 

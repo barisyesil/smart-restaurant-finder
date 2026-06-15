@@ -72,7 +72,8 @@ function buildContext(places: RecommendedPlace[]): ChatContext {
       distance_m: place.distance_m,
       price_level: place.price_level,
       open_now: place.open_now,
-      reason: place.reasons[0] ?? null,
+      // Skorlama gerekçesi i18n anahtarıdır; Gemini'ye anlamlı (çevrilmiş) metin gönder.
+      reason: place.reasons[0] ? i18n.t(`reasons.${place.reasons[0]}`) : null,
     })),
     favorites: toSaved(saved.favorites),
     wishlist: toSaved(saved.wishlist),

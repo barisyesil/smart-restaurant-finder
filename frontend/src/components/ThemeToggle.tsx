@@ -17,7 +17,7 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="rounded-full">
+        <Button variant="outline" size="icon" className="rounded-full bg-background shadow-md">
           <Sun className="h-5 w-5 scale-100 transition-all dark:scale-0" />
           <Moon className="absolute h-5 w-5 scale-0 transition-all dark:scale-100" />
           <span className="sr-only">{t('theme.toggle')}</span>

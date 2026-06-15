@@ -1,4 +1,11 @@
-import { APIProvider, Map, Marker, useApiIsLoaded, useMap } from '@vis.gl/react-google-maps'
+import {
+  APIProvider,
+  ControlPosition,
+  Map,
+  Marker,
+  useApiIsLoaded,
+  useMap,
+} from '@vis.gl/react-google-maps'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -124,6 +131,7 @@ export function MapView({
         gestureHandling="greedy"
         disableDefaultUI
         zoomControl
+        zoomControlOptions={{ position: ControlPosition.LEFT_BOTTOM }}
         clickableIcons={false}
         className="h-full w-full"
       >

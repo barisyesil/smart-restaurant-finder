@@ -199,7 +199,7 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
                         className="flex items-center gap-1.5 text-xs text-muted-foreground"
                       >
                         <Sparkles className="h-3 w-3 shrink-0 text-primary" />
-                        {reason}
+                        {t(`reasons.${reason}`)}
                       </li>
                     ))}
                   </ul>

@@ -38,7 +38,7 @@
     "subtitleCount": "{{count}} best matches for you",
     "locating": "Getting your location…",
     "waitingLocation": "Waiting for location",
-    "surprise": "Surprise me",
+    "surprise": "Surprise me!",
     "geoHint": "{{error}} You can search for a location above."
   },
   "location": {
@@ -123,6 +123,7 @@
   "chat": {
     "title": "Smart Assistant",
     "subtitle": "Recommend, filter, explore",
+    "launcher": "How can I help you?",
     "open": "Open AI assistant",
     "close": "Close",
     "placeholder": "Type something…",
@@ -143,5 +144,13 @@
   },
   "geo": {
     "unsupported": "Your browser doesn't support geolocation."
+  },
+  "reasons": {
+    "favoriteSimilar": "Similar to places you like",
+    "typeMatch": "Matches what you're after",
+    "budget": "Fits your budget",
+    "nearby": "Close to you",
+    "topRated": "Highly rated & established",
+    "closedNow": "Currently closed"
   }
 }

@@ -38,7 +38,7 @@
     "subtitleCount": "Senin için en uygun {{count}} mekan",
     "locating": "Konumunuz alınıyor…",
     "waitingLocation": "Konum bekleniyor",
-    "surprise": "Sürpriz beni",
+    "surprise": "Beni Şaşırt!",
     "geoHint": "{{error}} Yukarıdan bir konum arayabilirsiniz."
   },
   "location": {
@@ -123,6 +123,7 @@
   "chat": {
     "title": "Akıllı Asistan",
     "subtitle": "Öner, filtrele, keşfet",
+    "launcher": "Size nasıl yardımcı olabilirim?",
     "open": "AI asistanını aç",
     "close": "Kapat",
     "placeholder": "Bir şeyler yaz…",
@@ -143,5 +144,13 @@
   },
   "geo": {
     "unsupported": "Tarayıcınız konum desteği sunmuyor."
+  },
+  "reasons": {
+    "favoriteSimilar": "Beğendiğin mekanlara benziyor",
+    "typeMatch": "Aradığın türde bir mekan",
+    "budget": "Bütçene uygun",
+    "nearby": "Sana yakın",
+    "topRated": "Yüksek puanlı ve köklü",
+    "closedNow": "Şu an kapalı"
   }
 }
