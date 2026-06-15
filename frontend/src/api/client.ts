@@ -25,17 +25,32 @@ export async function apiGet<T>(
   return response.json() as Promise<T>
 }
 
-export async function apiPost<T>(path: string, body: unknown): Promise<T> {
+async function sendJson<T>(method: string, path: string, body?: unknown): Promise<T> {
   const url = new URL(path, API_BASE_URL)
   const response = await fetch(url, {
-    method: 'POST',
+    method,
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify(body),
+    body: body === undefined ? undefined : JSON.stringify(body),
   })
   if (!response.ok) {
     const error = new Error(`API hatası: ${response.status}`)
     Object.assign(error, { status: response.status })
     throw error
   }
+  if (response.status === 204) {
+    return undefined as T
+  }
   return response.json() as Promise<T>
+}
+
+export function apiPost<T>(path: string, body: unknown): Promise<T> {
+  return sendJson<T>('POST', path, body)
+}
+
+export function apiPut<T>(path: string, body: unknown): Promise<T> {
+  return sendJson<T>('PUT', path, body)
+}
+
+export function apiDelete<T = void>(path: string): Promise<T> {
+  return sendJson<T>('DELETE', path)
 }

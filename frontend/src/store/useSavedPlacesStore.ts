@@ -14,13 +14,17 @@ export interface SavedPlace {
   lon: number
 }
 
-interface SavedPlacesState {
+interface SavedCollection {
   favorites: SavedPlace[]
-  wishlist: SavedPlace[] // gitmek istediklerim
+  wishlist: SavedPlace[]
   visited: SavedPlace[]
+}
+
+interface SavedPlacesState extends SavedCollection {
   toggleFavorite: (place: SavedPlace) => void
   toggleWishlist: (place: SavedPlace) => void
   toggleVisited: (place: SavedPlace) => void
+  setAll: (collection: SavedCollection) => void
 }
 
 function toggle(list: SavedPlace[], place: SavedPlace): SavedPlace[] {
@@ -39,6 +43,12 @@ export const useSavedPlacesStore = create<SavedPlacesState>()(
       toggleFavorite: (place) => set((state) => ({ favorites: toggle(state.favorites, place) })),
       toggleWishlist: (place) => set((state) => ({ wishlist: toggle(state.wishlist, place) })),
       toggleVisited: (place) => set((state) => ({ visited: toggle(state.visited, place) })),
+      setAll: (collection) =>
+        set({
+          favorites: collection.favorites,
+          wishlist: collection.wishlist,
+          visited: collection.visited,
+        }),
     }),
     { name: 'saved-places' },
   ),

@@ -15,6 +15,7 @@ interface PreferencesState extends Preferences {
   setMaxDistance: (meters: number) => void
   setMaxPrice: (price: number | null) => void
   setOpenNow: (value: boolean) => void
+  setAll: (prefs: Preferences) => void
   reset: () => void
 }
 
@@ -45,6 +46,7 @@ export const usePreferencesStore = create<PreferencesState>()(
       setMaxDistance: (maxDistance) => set({ maxDistance }),
       setMaxPrice: (maxPrice) => set({ maxPrice }),
       setOpenNow: (openNow) => set({ openNow }),
+      setAll: (prefs) => set({ ...prefs }),
       reset: () => set(DEFAULTS),
     }),
     { name: 'preferences' },

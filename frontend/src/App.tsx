@@ -4,6 +4,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthDialog } from '@/features/auth/AuthDialog'
 import { Sidebar } from '@/features/layout/Sidebar'
 import { MapView } from '@/features/map/MapView'
+import { useAccountSync } from '@/hooks/useAccountSync'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useRecommendations } from '@/hooks/useRecommendations'
@@ -12,6 +13,7 @@ import { usePreferencesStore } from '@/store/usePreferencesStore'
 import { useSavedPlacesStore } from '@/store/useSavedPlacesStore'
 
 function App() {
+  useAccountSync()
   const isMobile = useIsMobile()
   const { coords, error: geoError, loading: geoLoading } = useGeolocation()
   const selectPlace = useAppStore((state) => state.selectPlace)

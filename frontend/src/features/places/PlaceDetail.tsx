@@ -11,11 +11,13 @@ import {
   Star,
 } from 'lucide-react'
 
+import { addSaved, removeSaved, type SavedKind } from '@/api/me'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePlaceDetails } from '@/hooks/usePlaceDetails'
 import { formatDistance, formatPriceLevel, getCategoryMeta } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/store/useAuthStore'
 import { useSavedPlacesStore, type SavedPlace } from '@/store/useSavedPlacesStore'
 import type { RecommendedPlace } from '@/types/place'
 
@@ -58,19 +60,32 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
     }
   }
 
+  // Giriş yapılmışsa değişikliği sunucuya da yansıt (wasActive: tıklamadan önceki durum).
+  function syncSaved(kind: SavedKind, wasActive: boolean, saved: SavedPlace) {
+    if (!useAuthStore.getState().token) return
+    const request = wasActive ? removeSaved(kind, saved.id) : addSaved(kind, saved)
+    request.catch(() => {})
+  }
+
   function handleFavorite() {
     const saved = buildSaved()
-    if (saved) toggleFavorite(saved)
+    if (!saved) return
+    toggleFavorite(saved)
+    syncSaved('favorite', isFavorite, saved)
   }
 
   function handleWishlist() {
     const saved = buildSaved()
-    if (saved) toggleWishlist(saved)
+    if (!saved) return
+    toggleWishlist(saved)
+    syncSaved('wishlist', isWishlisted, saved)
   }
 
   function handleVisited() {
     const saved = buildSaved()
-    if (saved) toggleVisited(saved)
+    if (!saved) return
+    toggleVisited(saved)
+    syncSaved('visited', isVisited, saved)
   }
 
   async function handleShare() {
