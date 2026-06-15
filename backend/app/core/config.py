@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     # Frontend kaynaklarına CORS izni. Birden fazla origin virgülle ayrılır.
     cors_origins: str = "http://localhost:5173"
+    # Origin regex (örn. Vercel preview/prod alt alan adları). Boş = devre dışı.
+    cors_origin_regex: str = r"https://.*\.vercel\.app"
 
     # Google Places API (New) sunucu anahtarı. Sunucuda kalır, asla frontend'e sızmaz.
     google_maps_api_key: str = ""
@@ -30,7 +32,12 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> list[str]:
-        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        # Sondaki '/' temizlenir: origin başlığı asla trailing slash içermez (yaygın hata).
+        return [
+            origin.strip().rstrip("/")
+            for origin in self.cors_origins.split(",")
+            if origin.strip()
+        ]
 
     @property
     def sqlalchemy_url(self) -> str:
