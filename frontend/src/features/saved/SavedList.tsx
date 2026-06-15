@@ -6,8 +6,23 @@ import { useSavedPlacesStore, type SavedPlace } from '@/store/useSavedPlacesStor
 import type { Place } from '@/types/place'
 
 interface SavedListProps {
-  kind: 'favorites' | 'visited'
+  kind: 'favorites' | 'wishlist' | 'visited'
   coords: Coordinates | null
+}
+
+const META: Record<SavedListProps['kind'], { title: string; empty: string }> = {
+  favorites: {
+    title: 'Favorilerim',
+    empty: 'Henüz favori eklemedin. Bir mekanın detayında ❤️ ile ekleyebilirsin.',
+  },
+  wishlist: {
+    title: 'Gitmek İstediklerim',
+    empty: 'Henüz listene yer eklemedin. Mekan detayından 🔖 ile ekleyebilirsin.',
+  },
+  visited: {
+    title: 'Gittiğim Yerler',
+    empty: 'Henüz gittiğin yer işaretlemedin. Mekan detayından "Gittim" diyebilirsin.',
+  },
 }
 
 function toPlace(saved: SavedPlace, coords: Coordinates | null): Place {
@@ -23,22 +38,14 @@ function toPlace(saved: SavedPlace, coords: Coordinates | null): Place {
 }
 
 export function SavedList({ kind, coords }: SavedListProps) {
-  const items = useSavedPlacesStore((state) =>
-    kind === 'favorites' ? state.favorites : state.visited,
-  )
+  const items = useSavedPlacesStore((state) => state[kind])
   const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
   const selectPlace = useAppStore((state) => state.selectPlace)
 
-  const title = kind === 'favorites' ? 'Favorilerim' : 'Gittiğim Yerler'
+  const { title, empty } = META[kind]
 
   if (items.length === 0) {
-    return (
-      <div className="p-8 text-center text-sm text-muted-foreground">
-        {kind === 'favorites'
-          ? 'Henüz favori eklemedin. Bir mekanın detayında ❤️ ile ekleyebilirsin.'
-          : 'Henüz gittiğin yer işaretlemedin. Mekan detayından "Gittim" diyebilirsin.'}
-      </div>
-    )
+    return <div className="p-8 text-center text-sm text-muted-foreground">{empty}</div>
   }
 
   const places = items

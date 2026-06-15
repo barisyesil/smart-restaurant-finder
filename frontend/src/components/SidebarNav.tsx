@@ -1,4 +1,4 @@
-import { CheckCheck, Compass, Heart, User, type LucideIcon } from 'lucide-react'
+import { Bookmark, CheckCheck, Compass, Heart, User, type LucideIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { useAppStore, type SidebarView } from '@/store/useAppStore'
@@ -6,7 +6,8 @@ import { useAppStore, type SidebarView } from '@/store/useAppStore'
 const ITEMS: { view: SidebarView; label: string; Icon: LucideIcon }[] = [
   { view: 'discover', label: 'Keşfet', Icon: Compass },
   { view: 'favorites', label: 'Favoriler', Icon: Heart },
-  { view: 'visited', label: 'Gittiklerim', Icon: CheckCheck },
+  { view: 'wishlist', label: 'Gidilecek', Icon: Bookmark },
+  { view: 'visited', label: 'Gittiğim', Icon: CheckCheck },
   { view: 'profile', label: 'Profil', Icon: User },
 ]
 

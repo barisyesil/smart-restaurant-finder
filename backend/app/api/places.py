@@ -18,7 +18,7 @@ def _require_api_key() -> None:
 async def get_nearby_places(
     lat: float = Query(..., ge=-90, le=90, description="Kullanıcı enlemi"),
     lon: float = Query(..., ge=-180, le=180, description="Kullanıcı boylamı"),
-    radius: int = Query(1000, ge=100, le=5000, description="Arama yarıçapı (metre)"),
+    radius: int = Query(1000, ge=100, le=50000, description="Arama yarıçapı (metre)"),
 ) -> list[Place]:
     _require_api_key()
     try:

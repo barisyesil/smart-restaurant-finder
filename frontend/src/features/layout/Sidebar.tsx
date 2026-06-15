@@ -37,6 +37,7 @@ export function Sidebar(props: SidebarProps) {
       <SidebarNav />
       {view === 'discover' && <DiscoverPanel {...props} />}
       {view === 'favorites' && <SavedList kind="favorites" coords={props.coords} />}
+      {view === 'wishlist' && <SavedList kind="wishlist" coords={props.coords} />}
       {view === 'visited' && <SavedList kind="visited" coords={props.coords} />}
       {view === 'profile' && <ProfilePanel />}
     </div>

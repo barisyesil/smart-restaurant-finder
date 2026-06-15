@@ -5,6 +5,7 @@ import { useSavedPlacesStore } from '@/store/useSavedPlacesStore'
 
 export function ProfilePanel() {
   const favorites = useSavedPlacesStore((state) => state.favorites)
+  const wishlist = useSavedPlacesStore((state) => state.wishlist)
   const visited = useSavedPlacesStore((state) => state.visited)
 
   return (
@@ -21,10 +22,14 @@ export function ProfilePanel() {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-4 grid grid-cols-3 gap-3">
         <div className="rounded-xl bg-muted/50 p-3 text-center">
           <p className="text-2xl font-bold">{favorites.length}</p>
           <p className="text-xs text-muted-foreground">Favori</p>
+        </div>
+        <div className="rounded-xl bg-muted/50 p-3 text-center">
+          <p className="text-2xl font-bold">{wishlist.length}</p>
+          <p className="text-xs text-muted-foreground">Gidilecek</p>
         </div>
         <div className="rounded-xl bg-muted/50 p-3 text-center">
           <p className="text-2xl font-bold">{visited.length}</p>

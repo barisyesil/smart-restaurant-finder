@@ -16,8 +16,10 @@ export interface SavedPlace {
 
 interface SavedPlacesState {
   favorites: SavedPlace[]
+  wishlist: SavedPlace[] // gitmek istediklerim
   visited: SavedPlace[]
   toggleFavorite: (place: SavedPlace) => void
+  toggleWishlist: (place: SavedPlace) => void
   toggleVisited: (place: SavedPlace) => void
 }
 
@@ -32,8 +34,10 @@ export const useSavedPlacesStore = create<SavedPlacesState>()(
   persist(
     (set) => ({
       favorites: [],
+      wishlist: [],
       visited: [],
       toggleFavorite: (place) => set((state) => ({ favorites: toggle(state.favorites, place) })),
+      toggleWishlist: (place) => set((state) => ({ wishlist: toggle(state.wishlist, place) })),
       toggleVisited: (place) => set((state) => ({ visited: toggle(state.visited, place) })),
     }),
     { name: 'saved-places' },

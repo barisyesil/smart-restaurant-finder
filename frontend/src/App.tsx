@@ -36,8 +36,9 @@ function App() {
     favoriteTypes,
   )
 
-  // "Açık" tercihi seçiliyse yalnızca açık mekanları göster (istemci tarafı).
-  const places = openNow ? recommended.filter((place) => place.open_now) : recommended
+  // "Açık" tercihi seçiliyse yalnızca KESİN kapalı olanları gizle.
+  // (Çalışma saati bilinmeyen mekanlar — open_now === null — listede kalır.)
+  const places = openNow ? recommended.filter((place) => place.open_now !== false) : recommended
 
   const panel = (
     <Sidebar

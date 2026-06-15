@@ -73,5 +73,6 @@ def test_reasons_present():
         [make_place("p", rating=4.6, count=200, distance=120)],
         RecommendRequest(lat=0, lon=0, radius=1000),
     )
-    assert any("★" in reason for reason in rec.reasons)
+    assert "Sana yakın" in rec.reasons
+    assert "Yüksek puanlı ve köklü" in rec.reasons
     assert 0 <= rec.score <= 100

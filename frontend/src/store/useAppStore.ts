@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 import type { Coordinates } from '@/hooks/useGeolocation'
 
-export type SidebarView = 'discover' | 'favorites' | 'visited' | 'profile'
+export type SidebarView = 'discover' | 'favorites' | 'wishlist' | 'visited' | 'profile'
 
 interface AppState {
   selectedPlaceId: string | null

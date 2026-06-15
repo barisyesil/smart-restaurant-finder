@@ -67,7 +67,7 @@ export function PreferencesSheet() {
             </div>
             <Slider
               min={250}
-              max={5000}
+              max={20000}
               step={250}
               value={[maxDistance]}
               onValueChange={(value) => setMaxDistance(value[0])}

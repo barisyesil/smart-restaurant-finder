@@ -1,27 +1,41 @@
-import { ArrowLeft, Check, Globe, Heart, Navigation, Phone, Share2, Star } from 'lucide-react'
+import {
+  ArrowLeft,
+  Bookmark,
+  Check,
+  Globe,
+  Heart,
+  Navigation,
+  Phone,
+  Share2,
+  Sparkles,
+  Star,
+} from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePlaceDetails } from '@/hooks/usePlaceDetails'
-import { formatPriceLevel, getCategoryMeta } from '@/lib/constants'
+import { formatDistance, formatPriceLevel, getCategoryMeta } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useSavedPlacesStore, type SavedPlace } from '@/store/useSavedPlacesStore'
-import type { Place } from '@/types/place'
+import type { RecommendedPlace } from '@/types/place'
 
 interface PlaceDetailProps {
   placeId: string
-  summary?: Place
+  summary?: RecommendedPlace
   onClose: () => void
 }
 
 export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
   const { data: detail, isLoading, isError } = usePlaceDetails(placeId)
   const favorites = useSavedPlacesStore((state) => state.favorites)
+  const wishlist = useSavedPlacesStore((state) => state.wishlist)
   const visited = useSavedPlacesStore((state) => state.visited)
   const toggleFavorite = useSavedPlacesStore((state) => state.toggleFavorite)
+  const toggleWishlist = useSavedPlacesStore((state) => state.toggleWishlist)
   const toggleVisited = useSavedPlacesStore((state) => state.toggleVisited)
 
   const isFavorite = favorites.some((item) => item.id === placeId)
+  const isWishlisted = wishlist.some((item) => item.id === placeId)
   const isVisited = visited.some((item) => item.id === placeId)
 
   const place = detail ?? summary
@@ -47,6 +61,11 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
   function handleFavorite() {
     const saved = buildSaved()
     if (saved) toggleFavorite(saved)
+  }
+
+  function handleWishlist() {
+    const saved = buildSaved()
+    if (saved) toggleWishlist(saved)
   }
 
   function handleVisited() {
@@ -94,15 +113,28 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <Button
-          variant="secondary"
-          size="icon"
-          onClick={handleFavorite}
-          className="absolute right-2 top-2 rounded-full shadow"
-          aria-label="Favorilere ekle"
-        >
-          <Heart className={cn('h-4 w-4', isFavorite && 'fill-red-500 text-red-500')} />
-        </Button>
+        <div className="absolute right-2 top-2 flex gap-2">
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={handleWishlist}
+            className="rounded-full shadow"
+            aria-label="Gitmek istediklerime ekle"
+          >
+            <Bookmark
+              className={cn('h-4 w-4', isWishlisted && 'fill-primary text-primary')}
+            />
+          </Button>
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={handleFavorite}
+            className="rounded-full shadow"
+            aria-label="Favorilere ekle"
+          >
+            <Heart className={cn('h-4 w-4', isFavorite && 'fill-red-500 text-red-500')} />
+          </Button>
+        </div>
       </div>
 
       <div className="p-4">
@@ -132,6 +164,38 @@ export function PlaceDetail({ placeId, summary, onClose }: PlaceDetailProps) {
                 </span>
               )}
             </div>
+
+            {summary?.score != null && (
+              <div className="mt-3 rounded-xl bg-primary/5 p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Senin için uygunluk</span>
+                  <span className="text-lg font-bold text-primary">
+                    %{Math.round(summary.score)}
+                  </span>
+                </div>
+                {summary.reasons.length > 0 && (
+                  <ul className="mt-2 space-y-1">
+                    {summary.reasons.map((reason) => (
+                      <li
+                        key={reason}
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground"
+                      >
+                        <Sparkles className="h-3 w-3 shrink-0 text-primary" />
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  {place?.rating != null && (
+                    <span>
+                      {place.rating.toFixed(1)}★ · {place.user_ratings_total ?? 0} yorum
+                    </span>
+                  )}
+                  <span>{formatDistance(summary.distance_m)} uzaklıkta</span>
+                </div>
+              </div>
+            )}
 
             {/* Hızlı aksiyonlar */}
             <div className="mt-4 grid grid-cols-3 gap-2">
