@@ -104,26 +104,26 @@ def _build_reasons(
     bonus: float,
     closed: bool,
 ) -> list[str]:
-    # Niteliksel (sayısız) gerekçeler — yan panelde kısa etiket olarak gösterilir.
-    # Sayısal değerler (puan, yorum, mesafe) detay kartında ayrıca gösterilir.
+    # Niteliksel (sayısız) gerekçeler — i18n ANAHTARI olarak döner; metin frontend'de
+    # kullanıcının diline çevrilir (i18n: reasons.*). Sayısal değerler detay kartındadır.
     reasons: list[str] = []
     if bonus > 0:
-        reasons.append("Beğendiğin mekanlara benziyor")
+        reasons.append("favoriteSimilar")
     if (request.categories or request.cuisines) and category_s == CATEGORY_MATCH:
-        reasons.append("Aradığın türde bir mekan")
+        reasons.append("typeMatch")
     if request.max_price is not None and price_s == 100.0:
-        reasons.append("Bütçene uygun")
+        reasons.append("budget")
     if distance_s >= 70:
-        reasons.append("Sana yakın")
+        reasons.append("nearby")
     if (
         place.rating is not None
         and place.user_ratings_total
         and place.user_ratings_total >= 200
         and place.rating >= 4.3
     ):
-        reasons.append("Yüksek puanlı ve köklü")
+        reasons.append("topRated")
     if closed:
-        reasons.append("Şu an kapalı")
+        reasons.append("closedNow")
     return reasons
 
 
