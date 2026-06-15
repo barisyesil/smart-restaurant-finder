@@ -14,9 +14,25 @@ class Settings(BaseSettings):
     # Google Places API (New) sunucu anahtarı. Sunucuda kalır, asla frontend'e sızmaz.
     google_maps_api_key: str = ""
 
+    # Veritabanı: yerelde SQLite, production'da Neon Postgres (DATABASE_URL ile).
+    database_url: str = "sqlite:///./app.db"
+
+    # JWT ayarları
+    jwt_secret: str = "dev-secret-change-me-in-production-please-32"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60 * 24 * 7  # 7 gün
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @property
+    def sqlalchemy_url(self) -> str:
+        # Neon/Heroku 'postgresql://' verir; psycopg v3 sürücüsüne yönlendir.
+        url = self.database_url
+        if url.startswith("postgresql://"):
+            return url.replace("postgresql://", "postgresql+psycopg://", 1)
+        return url
 
 
 settings = Settings()

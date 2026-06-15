@@ -4,6 +4,8 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+# B008: FastAPI'de Depends()/Query() argüman varsayılanı olarak kullanılır (bilinçli desen).
+ignore = ["B008"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
