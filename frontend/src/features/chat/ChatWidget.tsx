@@ -1,15 +1,72 @@
-import { Loader2, Send, Sparkles, X } from 'lucide-react'
+import { Loader2, Send, Sparkles, Star, X } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
+import type { PlaceRecommendation } from '@/api/chat'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useChat } from '@/hooks/useChat'
+import { formatDistance, formatPriceLevel, getCategoryMeta } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { useAppStore } from '@/store/useAppStore'
+import type { RecommendedPlace } from '@/types/place'
 
-export function ChatWidget() {
+interface ChatWidgetProps {
+  places: RecommendedPlace[]
+}
+
+function RecommendationCard({
+  recommendation,
+  place,
+  onOpen,
+}: {
+  recommendation: PlaceRecommendation
+  place: RecommendedPlace | undefined
+  onOpen: () => void
+}) {
+  const meta = getCategoryMeta(place?.category ?? '')
+  const Icon = meta.Icon
+  const price = formatPriceLevel(place?.price_level ?? null)
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="flex w-full flex-col gap-1 rounded-xl border bg-background p-2.5 text-left transition-colors hover:bg-accent"
+    >
+      <div className="flex items-center gap-2">
+        <span
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+          style={{ backgroundColor: `${meta.color}1a`, color: meta.color }}
+        >
+          <Icon className="h-3.5 w-3.5" />
+        </span>
+        <span className="flex-1 truncate text-sm font-semibold">
+          {place?.name ?? 'Mekan'}
+        </span>
+        {place?.rating != null && (
+          <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            {place.rating.toFixed(1)}
+          </span>
+        )}
+      </div>
+      <p className="text-xs leading-snug text-muted-foreground">{recommendation.reason}</p>
+      {place && (
+        <div className="flex flex-wrap gap-1.5 text-[11px] text-muted-foreground">
+          <span>{meta.label}</span>
+          <span>· {formatDistance(place.distance_m)}</span>
+          {price && <span>· {price}</span>}
+        </div>
+      )}
+    </button>
+  )
+}
+
+export function ChatWidget({ places }: ChatWidgetProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
-  const { messages, suggestions, send, isPending } = useChat()
+  const { messages, suggestions, send, isPending } = useChat(places)
+  const selectPlace = useAppStore((state) => state.selectPlace)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Yeni mesaj/yanıt geldikçe listeyi en alta kaydır (setState değil, salt DOM — effect-safe).
@@ -46,7 +103,7 @@ export function ChatWidget() {
           </span>
           <div className="leading-tight">
             <p className="text-sm font-semibold">Akıllı Asistan</p>
-            <p className="text-xs text-muted-foreground">Doğal dille filtrele</p>
+            <p className="text-xs text-muted-foreground">Öner, filtrele, keşfet</p>
           </div>
         </div>
         <Button
@@ -62,23 +119,31 @@ export function ChatWidget() {
 
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
         {messages.map((message, index) => (
-          <div
-            key={index}
-            className={cn(
-              'flex',
-              message.role === 'user' ? 'justify-end' : 'justify-start',
-            )}
-          >
-            <div
-              className={cn(
-                'max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm',
-                message.role === 'user'
-                  ? 'rounded-br-sm bg-primary text-primary-foreground'
-                  : 'rounded-bl-sm bg-muted text-foreground',
-              )}
-            >
-              {message.text}
+          <div key={index} className="space-y-2">
+            <div className={cn('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}>
+              <div
+                className={cn(
+                  'max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm',
+                  message.role === 'user'
+                    ? 'rounded-br-sm bg-primary text-primary-foreground'
+                    : 'rounded-bl-sm bg-muted text-foreground',
+                )}
+              >
+                {message.text}
+              </div>
             </div>
+            {message.recommendations && message.recommendations.length > 0 && (
+              <div className="space-y-1.5">
+                {message.recommendations.map((recommendation) => (
+                  <RecommendationCard
+                    key={recommendation.place_id}
+                    recommendation={recommendation}
+                    place={places.find((place) => place.id === recommendation.place_id)}
+                    onOpen={() => selectPlace(recommendation.place_id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         ))}
         {isPending && (

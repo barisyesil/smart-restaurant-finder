@@ -87,7 +87,7 @@ function App() {
 
       {isMobile && <BottomSheet expandKey={selectedPlaceId}>{panel}</BottomSheet>}
 
-      <ChatWidget />
+      <ChatWidget places={places} />
       <AuthDialog />
     </div>
   )

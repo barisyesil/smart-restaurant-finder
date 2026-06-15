@@ -5,6 +5,23 @@ export interface ChatMessage {
   text: string
 }
 
+export interface ChatPlace {
+  id: string
+  name: string
+  category: string
+  rating: number | null
+  distance_m: number | null
+  price_level: number | null
+  open_now: boolean | null
+  reason: string | null
+}
+
+export interface ChatSavedPlace {
+  id: string
+  name: string
+  category: string
+}
+
 export interface ChatContext {
   categories: string[]
   cuisines: string[]
@@ -12,6 +29,15 @@ export interface ChatContext {
   max_price: number | null
   open_now: boolean | null
   has_location: boolean
+  places: ChatPlace[]
+  favorites: ChatSavedPlace[]
+  wishlist: ChatSavedPlace[]
+  visited: ChatSavedPlace[]
+}
+
+export interface PlaceRecommendation {
+  place_id: string
+  reason: string
 }
 
 export interface ChatAction {
@@ -27,6 +53,7 @@ export interface ChatAction {
 export interface ChatResponse {
   reply: string
   actions: ChatAction[]
+  recommendations: PlaceRecommendation[]
   suggestions: string[]
 }
 

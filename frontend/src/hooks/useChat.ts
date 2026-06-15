@@ -1,22 +1,31 @@
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 
-import { sendChat, type ChatAction, type ChatContext, type ChatMessage } from '@/api/chat'
+import {
+  sendChat,
+  type ChatAction,
+  type ChatContext,
+  type ChatMessage,
+  type PlaceRecommendation,
+} from '@/api/chat'
 import { geocode } from '@/api/geocode'
 import { useAppStore } from '@/store/useAppStore'
 import { usePreferencesStore } from '@/store/usePreferencesStore'
+import { useSavedPlacesStore, type SavedPlace } from '@/store/useSavedPlacesStore'
+import type { RecommendedPlace } from '@/types/place'
 
 export interface ChatBubble {
   role: 'user' | 'model'
   text: string
+  recommendations?: PlaceRecommendation[]
 }
 
 const GREETING: ChatBubble = {
   role: 'model',
-  text: 'Merhaba! Ne canın çekiyor? Örneğin "yürüme mesafesinde bütçe dostu bir kahveci" yaz, haritayı senin için ayarlayayım.',
+  text: 'Merhaba! Sana mekan önerebilir, filtreleri senin için ayarlayabilirim. Örneğin "yürüme mesafesinde bütçe dostu bir kahveci öner" ya da "favorilerim neler?" yaz.',
 }
 
-const INITIAL_SUGGESTIONS = ['Yakındaki açık kafeler', 'Bütçe dostu restoran', 'Tatlıcı öner']
+const INITIAL_SUGGESTIONS = ['Bana bir yer öner', 'Yakındaki açık kafeler', 'Favorilerim neler?']
 
 /** Modelin döndürdüğü yapılandırılmış eylemleri store'a uygular.
  *  apply_filters'ta null alanlar mevcut değeri korur (artımlı güncelleme). */
@@ -44,8 +53,13 @@ async function applyActions(actions: ChatAction[]): Promise<void> {
   }
 }
 
-function buildContext(): ChatContext {
+function toSaved(places: SavedPlace[]): ChatContext['favorites'] {
+  return places.map((place) => ({ id: place.id, name: place.name, category: place.category }))
+}
+
+function buildContext(places: RecommendedPlace[]): ChatContext {
   const prefs = usePreferencesStore.getState()
+  const saved = useSavedPlacesStore.getState()
   return {
     categories: prefs.categories,
     cuisines: prefs.cuisines,
@@ -53,21 +67,38 @@ function buildContext(): ChatContext {
     max_price: prefs.maxPrice,
     open_now: prefs.openNow,
     has_location: useAppStore.getState().customLocation !== null,
+    // Modelin önerebilmesi için görünür adayları kompakt gönder (ilk skorlama gerekçesiyle).
+    places: places.slice(0, 20).map((place) => ({
+      id: place.id,
+      name: place.name,
+      category: place.category,
+      rating: place.rating,
+      distance_m: place.distance_m,
+      price_level: place.price_level,
+      open_now: place.open_now,
+      reason: place.reasons[0] ?? null,
+    })),
+    favorites: toSaved(saved.favorites),
+    wishlist: toSaved(saved.wishlist),
+    visited: toSaved(saved.visited),
   }
 }
 
-export function useChat() {
+export function useChat(places: RecommendedPlace[]) {
   const [messages, setMessages] = useState<ChatBubble[]>([GREETING])
   const [suggestions, setSuggestions] = useState<string[]>(INITIAL_SUGGESTIONS)
 
   const mutation = useMutation({
     mutationFn: async ({ text, history }: { text: string; history: ChatMessage[] }) => {
-      const response = await sendChat({ message: text, history, context: buildContext() })
+      const response = await sendChat({ message: text, history, context: buildContext(places) })
       await applyActions(response.actions)
       return response
     },
     onSuccess: (response) => {
-      setMessages((prev) => [...prev, { role: 'model', text: response.reply }])
+      setMessages((prev) => [
+        ...prev,
+        { role: 'model', text: response.reply, recommendations: response.recommendations },
+      ])
       setSuggestions(response.suggestions)
     },
     onError: (error) => {
