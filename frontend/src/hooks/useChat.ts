@@ -72,10 +72,12 @@ export function useChat() {
     },
     onError: (error) => {
       const status = (error as { status?: number }).status
-      const text =
-        status === 503
-          ? 'AI asistanı henüz yapılandırılmamış (sunucuda GEMINI_API_KEY eksik).'
-          : 'Şu an yanıt veremedim, lütfen tekrar dener misin?'
+      let text = 'Şu an yanıt veremedim, lütfen tekrar dener misin?'
+      if (status === 503) {
+        text = 'AI asistanı henüz yapılandırılmamış (sunucuda GEMINI_API_KEY eksik).'
+      } else if (status === 429) {
+        text = 'AI asistanının kotası/kredisi şu an dolu. Biraz sonra tekrar dener misin?'
+      }
       setMessages((prev) => [...prev, { role: 'model', text }])
     },
   })
