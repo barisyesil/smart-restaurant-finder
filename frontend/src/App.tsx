@@ -1,5 +1,7 @@
+import { AccountButton } from '@/components/AccountButton'
 import { BottomSheet } from '@/components/BottomSheet'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { AuthDialog } from '@/features/auth/AuthDialog'
 import { Sidebar } from '@/features/layout/Sidebar'
 import { MapView } from '@/features/map/MapView'
 import { useGeolocation } from '@/hooks/useGeolocation'
@@ -74,12 +76,15 @@ function App() {
           </div>
         )}
 
-        <div className="absolute right-3 top-3 z-50">
+        <div className="absolute right-3 top-3 z-50 flex items-center gap-2">
+          <AccountButton />
           <ThemeToggle />
         </div>
       </div>
 
       {isMobile && <BottomSheet expandKey={selectedPlaceId}>{panel}</BottomSheet>}
+
+      <AuthDialog />
     </div>
   )
 }

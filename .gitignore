@@ -14,6 +14,10 @@ build/
 .env.*
 !.env.example
 
+# ---- Databases ----
+*.db
+*.sqlite3
+
 # ---- Python ----
 __pycache__/
 *.py[cod]

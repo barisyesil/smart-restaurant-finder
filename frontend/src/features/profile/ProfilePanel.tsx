@@ -1,9 +1,15 @@
-import { LogIn, User } from 'lucide-react'
+import { LogIn, LogOut, User } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { useAppStore } from '@/store/useAppStore'
+import { useAuthStore } from '@/store/useAuthStore'
 import { useSavedPlacesStore } from '@/store/useSavedPlacesStore'
 
 export function ProfilePanel() {
+  const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
+  const setAuthDialogOpen = useAppStore((state) => state.setAuthDialogOpen)
+
   const favorites = useSavedPlacesStore((state) => state.favorites)
   const wishlist = useSavedPlacesStore((state) => state.wishlist)
   const visited = useSavedPlacesStore((state) => state.visited)
@@ -14,10 +20,10 @@ export function ProfilePanel() {
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
           <User className="h-6 w-6" />
         </span>
-        <div>
-          <p className="font-semibold">Misafir</p>
+        <div className="min-w-0">
+          <p className="truncate font-semibold">{user ? user.email : 'Misafir'}</p>
           <p className="text-xs text-muted-foreground">
-            Giriş yaparak verilerini cihazlar arasında taşı
+            {user ? 'Giriş yapıldı' : 'Giriş yaparak verilerini cihazlar arasında taşı'}
           </p>
         </div>
       </div>
@@ -37,13 +43,17 @@ export function ProfilePanel() {
         </div>
       </div>
 
-      <Button className="mt-4 w-full gap-2" disabled>
-        <LogIn className="h-4 w-4" />
-        Giriş yap
-      </Button>
-      <p className="mt-2 text-center text-xs text-muted-foreground">
-        Hesap sistemi yakında eklenecek (favori ve geçmişin hesabına bağlanacak).
-      </p>
+      {user ? (
+        <Button variant="outline" className="mt-4 w-full gap-2" onClick={logout}>
+          <LogOut className="h-4 w-4" />
+          Çıkış yap
+        </Button>
+      ) : (
+        <Button className="mt-4 w-full gap-2" onClick={() => setAuthDialogOpen(true)}>
+          <LogIn className="h-4 w-4" />
+          Giriş yap / Kayıt ol
+        </Button>
+      )}
     </div>
   )
 }
