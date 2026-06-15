@@ -34,7 +34,7 @@
     "switchToLogin": "Already have an account? Log in"
   },
   "discover": {
-    "title": "Smart Restaurant Finder",
+    "title": "Crave Radar",
     "subtitleCount": "{{count}} best matches for you",
     "locating": "Getting your location…",
     "waitingLocation": "Waiting for location",

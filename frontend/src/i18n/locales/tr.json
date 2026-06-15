@@ -34,7 +34,7 @@
     "switchToLogin": "Zaten hesabın var mı? Giriş yap"
   },
   "discover": {
-    "title": "Akıllı Restoran Öneri",
+    "title": "Crave Radar",
     "subtitleCount": "Senin için en uygun {{count}} mekan",
     "locating": "Konumunuz alınıyor…",
     "waitingLocation": "Konum bekleniyor",
