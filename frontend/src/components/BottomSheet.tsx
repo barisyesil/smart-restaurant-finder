@@ -1,66 +1,52 @@
 import { ChevronDown } from 'lucide-react'
-import { Drawer } from 'vaul'
 import { type ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
-import { SHEET_PEEK, useAppStore } from '@/store/useAppStore'
+import { useAppStore } from '@/store/useAppStore'
 
-// Peek (özet) → yarı → tam. Son nokta 1 = tam yükseklik.
-const SNAP_POINTS: (number | string)[] = [SHEET_PEEK, '50%', 1]
-
-interface BottomSheetProps {
-  children: ReactNode
-}
-
-export function BottomSheet({ children }: BottomSheetProps) {
-  // Snap durumu global store'da: nav sekmesi / mekan seçimi sheet'i programatik açabilsin.
-  const snap = useAppStore((state) => state.sheetSnap)
-  const setSnap = useAppStore((state) => state.setSheetSnap)
-
-  const expanded = snap === 1
+/**
+ * Mobil içerik paneli. Snap-point sürükleme yerine iki net durum (açık/kapalı) ve
+ * `translate-y` animasyonu kullanır — kontroller deterministik ve sağlam. Açık panel
+ * üst kontrollerin (top-16) altında başlar, alt tab bar'ın (bottom-16) üstünde biter.
+ */
+export function BottomSheet({ children }: { children: ReactNode }) {
+  const open = useAppStore((state) => state.sheetOpen)
+  const setOpen = useAppStore((state) => state.setSheetOpen)
 
   return (
-    <Drawer.Root
-      open
-      modal={false}
-      dismissible={false}
-      snapPoints={SNAP_POINTS}
-      activeSnapPoint={snap}
-      setActiveSnapPoint={(value) => setSnap(value ?? SHEET_PEEK)}
-    >
-      <Drawer.Portal>
-        <Drawer.Content
-          // overscroll-contain: aşağı sürüklerken tarayıcının pull-to-refresh'ini engeller.
-          className="fixed inset-x-0 bottom-0 z-40 flex h-full max-h-[97%] flex-col overflow-hidden overscroll-contain rounded-t-2xl border border-b-0 bg-background shadow-[0_-8px_30px_rgba(0,0,0,0.12)] outline-none"
-        >
-          <Drawer.Title className="sr-only">Mekanlar</Drawer.Title>
+    <>
+      {/* Karartma: açıkken görünen harita kısmına dokununca paneli kapatır */}
+      <div
+        className={cn(
+          'fixed inset-0 z-30 bg-black/40 transition-opacity duration-300 sm:hidden',
+          open ? 'opacity-100' : 'pointer-events-none opacity-0',
+        )}
+        onClick={() => setOpen(false)}
+      />
 
-          {/* Sürükleme tutamacı + (tam açıkken) collapse butonu */}
-          <div className="relative shrink-0">
-            <div className="mx-auto my-3 h-1.5 w-10 rounded-full bg-muted" />
-            {expanded && (
-              <button
-                type="button"
-                onClick={() => setSnap(SHEET_PEEK)}
-                aria-label="Listeyi küçült"
-                className="absolute right-2 top-1.5 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <ChevronDown className="h-5 w-5" />
-              </button>
-            )}
-          </div>
-
-          {/* Tek scroll konteyneri: yalnızca tam açıkken scroll, aksi halde sürükleme çalışsın */}
-          <div
-            className={cn(
-              'min-h-0 flex-1 overscroll-contain',
-              expanded ? 'overflow-y-auto' : 'overflow-hidden',
-            )}
+      <div
+        className={cn(
+          'fixed inset-x-0 bottom-16 top-16 z-40 flex flex-col overflow-hidden rounded-t-3xl',
+          'border border-b-0 bg-background shadow-[0_-12px_40px_rgba(0,0,0,0.18)]',
+          'transition-transform duration-300 ease-out sm:hidden',
+          open ? 'translate-y-0' : 'translate-y-[120%]',
+        )}
+      >
+        {/* Tutamaç + büyük, belirgin kapatma butonu */}
+        <div className="relative flex shrink-0 items-center justify-center pb-1 pt-3">
+          <span className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Kapat"
+            className="absolute right-3 top-2 flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors active:scale-95 hover:bg-accent hover:text-foreground"
           >
-            {children}
-          </div>
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+            <ChevronDown className="h-6 w-6" />
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
+      </div>
+    </>
   )
 }

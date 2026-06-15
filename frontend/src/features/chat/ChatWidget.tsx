@@ -9,7 +9,7 @@ import { useChat } from '@/hooks/useChat'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { formatDistance, formatPriceLevel, getCategoryMeta } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { SHEET_PEEK, useAppStore } from '@/store/useAppStore'
+import { useAppStore } from '@/store/useAppStore'
 import type { RecommendedPlace } from '@/types/place'
 
 interface ChatWidgetProps {
@@ -71,7 +71,7 @@ export function ChatWidget({ places }: ChatWidgetProps) {
   const selectPlace = useAppStore((state) => state.selectPlace)
   const open = useAppStore((state) => state.chatOpen)
   const setOpen = useAppStore((state) => state.setChatOpen)
-  const sheetSnap = useAppStore((state) => state.sheetSnap)
+  const sheetOpen = useAppStore((state) => state.sheetOpen)
   const isMobile = useIsMobile()
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -90,13 +90,13 @@ export function ChatWidget({ places }: ChatWidgetProps) {
   // Launcher: yuvarlak FAB yerine karşılama metinli "pill". Masaüstünde sağ-altta
   // (harita zoom kontrolü sola alındı), mobilde alt bottom-sheet'in peek'inin üstünde.
   if (!open) {
-    // Mobilde sheet açık (peek'ten büyük) iken pill'i gizle — içeriğin üstüne binmesin.
-    if (isMobile && sheetSnap !== SHEET_PEEK) return null
+    // Mobilde içerik paneli açıkken pill'i gizle — üstüne binmesin.
+    if (isMobile && sheetOpen) return null
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-[124px] right-4 z-[60] flex items-center gap-2 rounded-full bg-primary py-3 pl-4 pr-5 text-primary-foreground shadow-lg ring-1 ring-black/5 transition-transform hover:scale-105 sm:bottom-5 sm:right-5"
+        className="fixed bottom-20 right-4 z-[60] flex items-center gap-2 rounded-full bg-primary py-3 pl-4 pr-5 text-primary-foreground shadow-lg ring-1 ring-black/5 transition-transform hover:scale-105 sm:bottom-5 sm:right-5"
       >
         <span className="relative flex h-6 w-6 items-center justify-center">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-foreground/40" />

@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { AccountButton } from '@/components/AccountButton'
 import { BottomSheet } from '@/components/BottomSheet'
 import { LanguageToggle } from '@/components/LanguageToggle'
+import { SidebarNav } from '@/components/SidebarNav'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthDialog } from '@/features/auth/AuthDialog'
 import { ChatWidget } from '@/features/chat/ChatWidget'
-import { Sidebar } from '@/features/layout/Sidebar'
+import { Sidebar, SidebarContent } from '@/features/layout/Sidebar'
 import { MapView } from '@/features/map/MapView'
 import { useAccountSync } from '@/hooks/useAccountSync'
 import { useGeolocation } from '@/hooks/useGeolocation'
@@ -24,7 +25,6 @@ function App() {
   const selectPlace = useAppStore((state) => state.selectPlace)
   const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
   const customLocation = useAppStore((state) => state.customLocation)
-  const chatOpen = useAppStore((state) => state.chatOpen)
 
   const categories = usePreferencesStore((state) => state.categories)
   const cuisines = usePreferencesStore((state) => state.cuisines)
@@ -50,22 +50,20 @@ function App() {
   // (Çalışma saati bilinmeyen mekanlar — open_now === null — listede kalır.)
   const places = openNow ? recommended.filter((place) => place.open_now !== false) : recommended
 
-  const panel = (
-    <Sidebar
-      places={places}
-      isLoading={isLoading}
-      isError={isError}
-      geoLoading={geoLoading}
-      geoError={geoError}
-      coords={activeCoords}
-    />
-  )
+  const sidebarProps = {
+    places,
+    isLoading,
+    isError,
+    geoLoading,
+    geoError,
+    coords: activeCoords,
+  }
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {!isMobile && (
         <aside className="h-full w-[380px] shrink-0 overflow-y-auto border-r bg-background">
-          {panel}
+          <Sidebar {...sidebarProps} />
         </aside>
       )}
 
@@ -91,8 +89,18 @@ function App() {
         </div>
       </div>
 
-      {/* Chatbot açıkken sheet'i kaldır: mobilde üst üste binmeyi ve klavye/odak çakışmasını önler. */}
-      {isMobile && !chatOpen && <BottomSheet>{panel}</BottomSheet>}
+      {/* Mobil: içerik kayan panelde, navigasyon ise her zaman görünen sabit alt tab bar'da. */}
+      {isMobile && (
+        <>
+          <BottomSheet>
+            <SidebarContent {...sidebarProps} />
+          </BottomSheet>
+          <SidebarNav
+            indicator="top"
+            className="fixed inset-x-0 bottom-0 z-40 h-16 border-t bg-background/95 backdrop-blur"
+          />
+        </>
+      )}
 
       <ChatWidget places={places} />
       <AuthDialog />

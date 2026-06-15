@@ -16,7 +16,9 @@ interface SidebarProps {
   coords: Coordinates | null
 }
 
-export function Sidebar(props: SidebarProps) {
+/** Aktif görünümün içeriği (navigasyon ÇUBUĞU olmadan). Hem masaüstü kenar çubuğunda
+ *  hem mobil içerik panelinde kullanılır. */
+export function SidebarContent(props: SidebarProps) {
   const view = useAppStore((state) => state.view)
   const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
   const selectPlace = useAppStore((state) => state.selectPlace)
@@ -24,22 +26,29 @@ export function Sidebar(props: SidebarProps) {
   if (selectedPlaceId) {
     const summary = props.places.find((place) => place.id === selectedPlaceId)
     return (
-      <PlaceDetail
-        placeId={selectedPlaceId}
-        summary={summary}
-        onClose={() => selectPlace(null)}
-      />
+      <PlaceDetail placeId={selectedPlaceId} summary={summary} onClose={() => selectPlace(null)} />
     )
   }
 
   return (
-    <div>
-      <SidebarNav />
+    <>
       {view === 'discover' && <DiscoverPanel {...props} />}
       {view === 'favorites' && <SavedList kind="favorites" coords={props.coords} />}
       {view === 'wishlist' && <SavedList kind="wishlist" coords={props.coords} />}
       {view === 'visited' && <SavedList kind="visited" coords={props.coords} />}
       {view === 'profile' && <ProfilePanel />}
-    </div>
+    </>
+  )
+}
+
+/** Masaüstü kenar çubuğu: üstte navigasyon + altında içerik. */
+export function Sidebar(props: SidebarProps) {
+  const selectedPlaceId = useAppStore((state) => state.selectedPlaceId)
+
+  return (
+    <>
+      {!selectedPlaceId && <SidebarNav className="border-b" />}
+      <SidebarContent {...props} />
+    </>
   )
 }
