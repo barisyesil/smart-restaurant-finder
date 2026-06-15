@@ -2,6 +2,7 @@ import { AccountButton } from '@/components/AccountButton'
 import { BottomSheet } from '@/components/BottomSheet'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthDialog } from '@/features/auth/AuthDialog'
+import { ChatWidget } from '@/features/chat/ChatWidget'
 import { Sidebar } from '@/features/layout/Sidebar'
 import { MapView } from '@/features/map/MapView'
 import { useAccountSync } from '@/hooks/useAccountSync'
@@ -86,6 +87,7 @@ function App() {
 
       {isMobile && <BottomSheet expandKey={selectedPlaceId}>{panel}</BottomSheet>}
 
+      <ChatWidget />
       <AuthDialog />
     </div>
   )
