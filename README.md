@@ -16,7 +16,6 @@ shop within walking distance") into structured filters and concrete recommendati
 
 ## Screenshots
 
-> _Replace these with your own captures (put images under `docs/`)._
 
 | Discover & map | AI assistant | Place detail |
 | --- | --- | --- |
