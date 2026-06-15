@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     # Gemini (AI asistanı). Anahtar sunucuda kalır; yoksa /chat 503 döner.
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
+    # Birincil model geçici olarak yoğunsa (429/500/503) bu hafif modele düşülür.
+    gemini_fallback_model: str = "gemini-2.5-flash-lite"
 
     @property
     def cors_origins_list(self) -> list[str]:

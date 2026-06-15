@@ -12,10 +12,14 @@ katman doğrular, frontend uygular.
 import json
 
 from google import genai
+from google.genai import errors as genai_errors
 from google.genai import types
 
 from app.core.config import settings
 from app.schemas.chat import ChatAction, ChatRequest, ChatResponse
+
+# Birincil model geçici olarak yanıt veremezse (yoğunluk/kota) bu kodlarda fallback denenir.
+RETRYABLE_CODES = {429, 500, 503}
 
 # Frontend'deki filtre enum'larıyla bire bir aynı (tek doğruluk kaynağı: bu set).
 VALID_CATEGORIES = {"restaurant", "cafe", "fast_food"}
@@ -138,24 +142,44 @@ def _build_contents(request: ChatRequest) -> list[types.Content]:
     return contents
 
 
+def _models() -> list[str]:
+    """Denenecek modeller: birincil + (varsa farklı) fallback."""
+    models = [settings.gemini_model]
+    fallback = settings.gemini_fallback_model
+    if fallback and fallback != settings.gemini_model:
+        models.append(fallback)
+    return models
+
+
 async def chat(request: ChatRequest) -> ChatResponse:
-    """Kullanıcı mesajını Gemini'ye gönderir, doğrulanmış eylem setini döndürür."""
+    """Kullanıcı mesajını Gemini'ye gönderir, doğrulanmış eylem setini döndürür.
+
+    Birincil model geçici bir hata (429/500/503) verirse hafif fallback modeli denenir;
+    diğer hatalar (geçersiz istek vb.) doğrudan yukarı fırlatılır."""
     client = _get_client()
 
     system = SYSTEM_INSTRUCTION
     if request.context is not None:
         system += "\n\nKullanıcının şu anki filtre durumu: " + request.context.model_dump_json()
 
-    response = await client.aio.models.generate_content(
-        model=settings.gemini_model,
-        contents=_build_contents(request),
-        config=types.GenerateContentConfig(
-            system_instruction=system,
-            response_mime_type="application/json",
-            response_schema=ChatResponse,
-            temperature=0.3,
-        ),
+    contents = _build_contents(request)
+    config = types.GenerateContentConfig(
+        system_instruction=system,
+        response_mime_type="application/json",
+        response_schema=ChatResponse,
+        temperature=0.3,
     )
 
-    data = json.loads(response.text)
-    return _sanitize(ChatResponse.model_validate(data))
+    models = _models()
+    for index, model in enumerate(models):
+        try:
+            response = await client.aio.models.generate_content(
+                model=model, contents=contents, config=config
+            )
+            data = json.loads(response.text)
+            return _sanitize(ChatResponse.model_validate(data))
+        except genai_errors.APIError as exc:
+            is_last = index == len(models) - 1
+            if exc.code in RETRYABLE_CODES and not is_last:
+                continue  # geçici hata → sıradaki modeli dene
+            raise
