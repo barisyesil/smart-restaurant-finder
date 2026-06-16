@@ -142,8 +142,7 @@
     "count": "{{count}} mekan"
   },
   "map": {
-    "youAreHere": "Buradasınız",
-    "noApiKey": "Google Maps API anahtarı (VITE_GOOGLE_MAPS_API_KEY) ayarlanmamış."
+    "youAreHere": "Buradasınız"
   },
   "app": {
     "waitingLocation": "Harita için konum bekleniyor…"

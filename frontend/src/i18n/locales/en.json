@@ -142,8 +142,7 @@
     "count": "{{count}} places"
   },
   "map": {
-    "youAreHere": "You are here",
-    "noApiKey": "Google Maps API key (VITE_GOOGLE_MAPS_API_KEY) is not configured."
+    "youAreHere": "You are here"
   },
   "app": {
     "waitingLocation": "Waiting for location to load the map…"
