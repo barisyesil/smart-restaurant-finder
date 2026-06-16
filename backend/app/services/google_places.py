@@ -11,8 +11,16 @@ NEARBY_URL = "https://places.googleapis.com/v1/places:searchNearby"
 DETAILS_URL = "https://places.googleapis.com/v1/places/{place_id}"
 PHOTO_URL = "https://places.googleapis.com/v1/{photo_name}/media"
 
-# Google Places (New) tip tablosundan ilgili yeme-içme türleri.
-INCLUDED_TYPES = ["restaurant", "cafe", "bakery", "bar", "meal_takeaway"]
+# Google Places (New) tip tablosundan ilgili yeme-içme türleri. Çoğu mutfak (italyan, suşi,
+# steak vb.) "restaurant" altında döner; tek başına gelmeyenler ayrıca eklenir.
+INCLUDED_TYPES = [
+    "restaurant",
+    "cafe",
+    "bakery",
+    "bar",
+    "meal_takeaway",
+    "ice_cream_shop",
+]
 
 # Yalnızca ihtiyacımız olan alanları isteyerek SKU maliyetini düşürürüz.
 FIELD_MASK = ",".join(

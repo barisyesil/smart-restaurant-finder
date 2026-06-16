@@ -21,18 +21,47 @@ from app.schemas.chat import ChatAction, ChatRequest, ChatResponse
 # Birincil model geçici olarak yanıt veremezse (yoğunluk/kota) bu kodlarda fallback denenir.
 RETRYABLE_CODES = {429, 500, 503}
 
-# Frontend'deki filtre enum'larıyla bire bir aynı (tek doğruluk kaynağı: bu set).
+# Frontend'deki filtre enum'larıyla bire bir aynı (tek doğruluk kaynağı: bu listeler).
 VALID_CATEGORIES = {"restaurant", "cafe", "fast_food"}
-VALID_CUISINES = {
+CUISINE_TYPES = [
     "turkish_restaurant",
+    "italian_restaurant",
+    "chinese_restaurant",
+    "japanese_restaurant",
+    "sushi_restaurant",
+    "korean_restaurant",
+    "thai_restaurant",
+    "indian_restaurant",
+    "mexican_restaurant",
+    "french_restaurant",
+    "greek_restaurant",
+    "mediterranean_restaurant",
+    "middle_eastern_restaurant",
+    "american_restaurant",
+    "vietnamese_restaurant",
+    "lebanese_restaurant",
+    "spanish_restaurant",
     "pizza_restaurant",
     "hamburger_restaurant",
+    "sandwich_shop",
+    "fast_food_restaurant",
+    "seafood_restaurant",
+    "steak_house",
+    "barbecue_restaurant",
+    "vegetarian_restaurant",
+    "vegan_restaurant",
+    "ramen_restaurant",
+    "breakfast_restaurant",
+    "brunch_restaurant",
     "coffee_shop",
     "dessert_shop",
-    "seafood_restaurant",
+    "ice_cream_shop",
     "bakery",
     "bar",
-}
+    "pub",
+    "wine_bar",
+]
+VALID_CUISINES = set(CUISINE_TYPES)
 MIN_DISTANCE = 250
 MAX_DISTANCE = 20000
 MAX_HISTORY = 8
@@ -48,12 +77,10 @@ isteğini, haritayı ve listeyi güncelleyen yapılandırılmış eylemlere çev
    değiştirilmeyecek alanları null bırak. Döndürdüğün her alan o filtrenin YENİ TAM
    değeridir (eski değerin üzerine yazılır).
    - categories: sadece ["restaurant","cafe","fast_food"] arasından.
-   - cuisines: sadece şu Google türlerinden:
-     ["turkish_restaurant","pizza_restaurant","hamburger_restaurant","coffee_shop",
-      "dessert_shop","seafood_restaurant","bakery","bar"].
-     (kahve/kahveci→coffee_shop, tatlı→dessert_shop, balık/deniz→seafood_restaurant,
-      pizza→pizza_restaurant, burger→hamburger_restaurant, fırın/pastane→bakery,
-      türk/kebap/ev yemeği→turkish_restaurant, bar/pub→bar)
+   - cuisines: YALNIZCA aşağıda verilen "Geçerli mutfak türleri" listesinden değer kullan.
+     Kullanıcının bahsettiği mutfağı en yakın türe eşle (ör. kahve→coffee_shop, tatlı→
+     dessert_shop, suşi→sushi_restaurant, kebap/ev yemeği→turkish_restaurant, balık→
+     seafood_restaurant). Listede uygun tür yoksa cuisines'i boş bırak.
    - max_distance: METRE cinsinden. "yürüme mesafesi"≈800, "yakın"≈1000, "çok yakın"≈500,
      "biraz uzak olabilir"≈5000. 250–20000 aralığında tut.
    - max_price: 0–4. "ucuz/bütçe dostu/hesaplı"→2, "orta"→3, "lüks/pahalı/şık"→4.
@@ -187,7 +214,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     diğer hatalar (geçersiz istek vb.) doğrudan yukarı fırlatılır."""
     client = _get_client()
 
-    system = SYSTEM_INSTRUCTION
+    system = SYSTEM_INSTRUCTION + "\n\nGeçerli mutfak türleri: " + ", ".join(CUISINE_TYPES)
     valid_place_ids: set[str] = set()
     if request.context is not None:
         context = request.context

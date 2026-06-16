@@ -127,9 +127,32 @@ def _build_reasons(
     return reasons
 
 
+def _passes_filters(place: Place, request: RecommendRequest) -> bool:
+    """Sert filtre: kategori/mutfak/fiyat tercihlerine uymayan mekanları eler.
+    Kategori ve mutfak birlikte seçiliyse herhangi biriyle eşleşmek yeterlidir (OR)."""
+    if request.categories or request.cuisines:
+        category_ok = bool(request.categories) and place.category in request.categories
+        cuisine_ok = bool(request.cuisines) and bool(set(request.cuisines) & set(place.types))
+        if not (category_ok or cuisine_ok):
+            return False
+    # Fiyat: yalnızca fiyatı BİLİNEN ve üst sınırı aşan mekanlar elenir (bilinmeyen tutulur).
+    if (
+        request.max_price is not None
+        and place.price_level is not None
+        and place.price_level > request.max_price
+    ):
+        return False
+    return True
+
+
 def recommend(places: list[Place], request: RecommendRequest) -> list[RecommendedPlace]:
-    """Ağırlıklı skorlama motoru: mekanları 100 üzerinden puanlayıp sıralar."""
+    """Ağırlıklı skorlama motoru: tercihlere uyan mekanları 100 üzerinden puanlayıp sıralar.
+    Bayesian ortalama (C) filtre ÖNCESİ tüm adaylardan hesaplanır (stabil referans)."""
     global_avg = _global_average_rating(places)
-    scored = [score_place(place, request, global_avg) for place in places]
+    scored = [
+        score_place(place, request, global_avg)
+        for place in places
+        if _passes_filters(place, request)
+    ]
     scored.sort(key=lambda item: item.score, reverse=True)
     return scored
