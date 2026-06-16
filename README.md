@@ -24,7 +24,7 @@ shop within walking distance") into structured filters and concrete recommendati
 ## Features
 
 - 📍 **Location-aware discovery** — browser geolocation or manual search (Nominatim).
-- 🗺️ **Clean Google Map** — custom SVG markers, distinct user pin, POIs/labels hidden.
+- 🗺️ **Clean map (Leaflet)** — OpenStreetMap/CARTO tiles, custom SVG markers, distinct user pin, dark/light aware.
 - 🧠 **Weighted scoring engine** — ranks every candidate 0–100 with explainable reasons.
 - 🤖 **AI assistant (Gemini)** — natural language → filters, location and place recommendations.
 - ❤️ **Personal lists** — favorites, wishlist, visited; synced to your account on login.
@@ -36,9 +36,9 @@ shop within walking distance") into structured filters and concrete recommendati
 
 | Layer | Technologies |
 | --- | --- |
-| Frontend | React, Vite, TypeScript, Tailwind v4, shadcn/ui, Zustand, TanStack Query, `@vis.gl/react-google-maps` |
+| Frontend | React, Vite, TypeScript, Tailwind v4, shadcn/ui, Zustand, TanStack Query, `react-leaflet` (Leaflet) |
 | Backend | Python, FastAPI, SQLAlchemy, Pydantic |
-| Data / AI | Google Places API (New), Google Gemini, Nominatim (geocoding) |
+| Data / AI | Google Places API (New), Google Gemini, Nominatim (geocoding), OpenStreetMap/CARTO (map tiles) |
 | Auth / DB | PyJWT + bcrypt; SQLite (local) / Neon Postgres (prod) |
 | Infra | GitHub Actions (CI), Vercel (frontend), Render (backend), Neon (database) |
 
@@ -73,11 +73,12 @@ The assistant does **not** free-text its way around the app. Instead:
 - **Resilience:** on transient errors (429/500/503) it automatically falls back to a lighter
   model; replies and suggestions follow the UI `locale`.
 
-### 3. Map rendering trade-off
-Google's `AdvancedMarker` requires a `mapId`, but a `mapId` disables inline `styles` — and we
-need inline styles to hide POIs/labels for a clean map. So we deliberately use the **legacy
-`Marker` + data-URI SVG icons** (`lucide-static`) to keep both the clean style *and* custom
-markers.
+### 3. Map: Leaflet, with Google Places only as a data source
+The spec scopes the map to open-source libraries (Leaflet / MapLibre / OpenLayers), so the map
+**renders with Leaflet** over OpenStreetMap/CARTO tiles — no API key, and the tile theme follows
+dark/light mode. Place **data** still comes from Google Places API (New): rendering and data are
+deliberately separate layers. Markers are custom **data-URI SVG icons** (`lucide-static`) handed
+to Leaflet's `L.icon`, giving premium pins while staying tile-provider-agnostic.
 
 ### 4. Other decisions
 - **Auth:** stateless JWT (PyJWT) + bcrypt; guest lists in localStorage are synced to the
@@ -86,6 +87,8 @@ markers.
   created on startup (`create_all`) — no migration tool needed for this scope.
 - **CORS:** an origin **regex** (`https://.*\.vercel\.app`) accepts both production and Vercel
   preview deployments, and origins are normalized (trailing slashes stripped).
+- **More than 20 results:** Google caps Nearby Search at 20 per request, so we query each place
+  type **in parallel** and dedupe by id — yielding ~40–70 unique candidates.
 - **CI:** tests are fully mocked, so the pipeline needs no API keys or network.
 
 ## Project structure
@@ -114,7 +117,8 @@ smart-restaurant-finder/
 
 ### Prerequisites
 - Python 3.12, Node.js 24 (npm 11)
-- A Google Maps/Places API key, and a free [Gemini API key](https://aistudio.google.com/apikey)
+- A Google Places API (New) key (server-side), and a free [Gemini API key](https://aistudio.google.com/apikey)
+- No map key needed — the map uses Leaflet with free OpenStreetMap/CARTO tiles.
 
 ### Backend
 ```bash
@@ -140,7 +144,7 @@ Key environment variables (`backend/.env`):
 ```bash
 cd frontend
 npm install
-copy .env.example .env            # set VITE_API_BASE_URL and VITE_GOOGLE_MAPS_API_KEY
+copy .env.example .env            # set VITE_API_BASE_URL
 npm run dev                       # → http://localhost:5173
 ```
 
