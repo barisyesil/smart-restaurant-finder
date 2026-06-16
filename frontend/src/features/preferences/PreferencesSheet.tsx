@@ -18,15 +18,44 @@ import { usePreferencesStore } from '@/store/usePreferencesStore'
 
 const PRICE_VALUES: (number | null)[] = [null, 1, 2, 3, 4]
 
+// Backend CUISINE_TYPES ile birebir aynı sırada tutulur (tek doğruluk kaynağı).
 const CUISINE_VALUES = [
   'turkish_restaurant',
+  'italian_restaurant',
+  'chinese_restaurant',
+  'japanese_restaurant',
+  'sushi_restaurant',
+  'korean_restaurant',
+  'thai_restaurant',
+  'indian_restaurant',
+  'mexican_restaurant',
+  'french_restaurant',
+  'greek_restaurant',
+  'mediterranean_restaurant',
+  'middle_eastern_restaurant',
+  'american_restaurant',
+  'vietnamese_restaurant',
+  'lebanese_restaurant',
+  'spanish_restaurant',
   'pizza_restaurant',
   'hamburger_restaurant',
+  'sandwich_shop',
+  'fast_food_restaurant',
+  'seafood_restaurant',
+  'steak_house',
+  'barbecue_restaurant',
+  'vegetarian_restaurant',
+  'vegan_restaurant',
+  'ramen_restaurant',
+  'breakfast_restaurant',
+  'brunch_restaurant',
   'coffee_shop',
   'dessert_shop',
-  'seafood_restaurant',
+  'ice_cream_shop',
   'bakery',
   'bar',
+  'pub',
+  'wine_bar',
 ]
 
 export function PreferencesSheet() {
