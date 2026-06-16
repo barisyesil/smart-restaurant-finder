@@ -68,19 +68,23 @@ function App() {
       )}
 
       <div className="relative flex-1">
-        {activeCoords ? (
-          <MapView
-            center={activeCoords}
-            userCoords={coords}
-            places={places}
-            selectedPlaceId={selectedPlaceId}
-            onSelectPlace={selectPlace}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-muted p-6 text-center text-muted-foreground">
-            {geoError ?? t('app.waitingLocation')}
-          </div>
-        )}
+        {/* isolate: Leaflet'in yüksek iç z-index'lerini bu kutuya hapseder, böylece
+            üst kontroller / sohbet / panel haritanın üstünde kalır. */}
+        <div className="absolute inset-0 isolate">
+          {activeCoords ? (
+            <MapView
+              center={activeCoords}
+              userCoords={coords}
+              places={places}
+              selectedPlaceId={selectedPlaceId}
+              onSelectPlace={selectPlace}
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-muted p-6 text-center text-muted-foreground">
+              {geoError ?? t('app.waitingLocation')}
+            </div>
+          )}
+        </div>
 
         <div className="absolute right-3 top-3 z-50 flex items-center gap-2">
           <AccountButton />

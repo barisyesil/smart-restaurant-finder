@@ -1,13 +1,8 @@
-import {
-  APIProvider,
-  ControlPosition,
-  Map,
-  Marker,
-  useApiIsLoaded,
-  useMap,
-} from '@vis.gl/react-google-maps'
-import { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
+import 'leaflet/dist/leaflet.css'
+
+import L from 'leaflet'
+import { useEffect } from 'react'
+import { MapContainer, Marker, TileLayer, useMap, ZoomControl } from 'react-leaflet'
 
 import type { Coordinates } from '@/hooks/useGeolocation'
 import { getCategoryMeta } from '@/lib/constants'
@@ -19,82 +14,31 @@ import {
   MARKER_WIDTH,
   userMarkerUrl,
 } from '@/lib/map-markers'
+import { useTheme } from '@/providers/theme-context'
 import type { Place } from '@/types/place'
 
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined
+// Sade, etiket-yoğun olmayan tile'lar (POI gürültüsü düşük). Açık kaynak: OSM + CARTO.
+const LIGHT_TILES = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+const ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
 
-// Ekran kirliliğini azaltan sade harita stili (styles yalnızca mapId YOKKEN çalışır).
-const MAP_STYLE = [
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'road', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-  { featureType: 'road.local', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-]
-
-function markerIcon(url: string, scale: number): google.maps.Icon {
-  return {
-    url,
-    scaledSize: new google.maps.Size(MARKER_WIDTH * scale, MARKER_HEIGHT * scale),
-    anchor: new google.maps.Point(MARKER_ANCHOR_X * scale, MARKER_ANCHOR_Y * scale),
-  }
+function buildIcon(url: string, scale: number): L.Icon {
+  return L.icon({
+    iconUrl: url,
+    iconSize: [MARKER_WIDTH * scale, MARKER_HEIGHT * scale],
+    iconAnchor: [MARKER_ANCHOR_X * scale, MARKER_ANCHOR_Y * scale],
+  })
 }
 
-interface MarkersProps {
-  userCoords: Coordinates | null
-  places: Place[]
-  selectedPlaceId: string | null
-  onSelectPlace: (id: string) => void
-}
-
-// google.maps yüklendikten sonra render edilir (ikonlar google.maps.Size/Point kullanır).
-function Markers({ userCoords, places, selectedPlaceId, onSelectPlace }: MarkersProps) {
-  const { t } = useTranslation()
-  const loaded = useApiIsLoaded()
-  if (!loaded) return null
-
-  return (
-    <>
-      {userCoords && (
-        <Marker
-          position={{ lat: userCoords.lat, lng: userCoords.lon }}
-          icon={markerIcon(userMarkerUrl, 1.15)}
-          title={t('map.youAreHere')}
-          zIndex={20}
-        />
-      )}
-
-      {places.map((place) => {
-        const { color } = getCategoryMeta(place.category)
-        const selected = place.id === selectedPlaceId
-        return (
-          <Marker
-            key={place.id}
-            position={{ lat: place.lat, lng: place.lon }}
-            icon={markerIcon(categoryMarkerUrl(place.category, color), selected ? 1.2 : 1)}
-            title={place.name}
-            zIndex={selected ? 10 : 1}
-            onClick={() => onSelectPlace(place.id)}
-          />
-        )
-      })}
-    </>
-  )
-}
+const USER_ICON = buildIcon(userMarkerUrl, 1.15)
 
 /** Aktif konum değiştiğinde haritayı oraya kaydırır (kullanıcı serbestçe gezebilir). */
-function MapController({ center }: { center: Coordinates }) {
+function Recenter({ center }: { center: Coordinates }) {
   const map = useMap()
-  const prevKey = useRef('')
-
   useEffect(() => {
-    if (!map) return
-    const key = `${center.lat},${center.lon}`
-    if (key !== prevKey.current) {
-      prevKey.current = key
-      map.panTo({ lat: center.lat, lng: center.lon })
-    }
+    map.setView([center.lat, center.lon], map.getZoom())
   }, [map, center])
-
   return null
 }
 
@@ -113,36 +57,39 @@ export function MapView({
   selectedPlaceId,
   onSelectPlace,
 }: MapViewProps) {
-  const { t } = useTranslation()
-  if (!API_KEY) {
-    return (
-      <div className="flex h-full items-center justify-center p-6 text-center text-muted-foreground">
-        {t('map.noApiKey')}
-      </div>
-    )
-  }
+  const { theme } = useTheme()
+  const isDark =
+    theme === 'dark' ||
+    (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   return (
-    <APIProvider apiKey={API_KEY}>
-      <Map
-        defaultCenter={{ lat: center.lat, lng: center.lon }}
-        defaultZoom={15}
-        styles={MAP_STYLE}
-        gestureHandling="greedy"
-        disableDefaultUI
-        zoomControl
-        zoomControlOptions={{ position: ControlPosition.LEFT_BOTTOM }}
-        clickableIcons={false}
-        className="h-full w-full"
-      >
-        <MapController center={center} />
-        <Markers
-          userCoords={userCoords}
-          places={places}
-          selectedPlaceId={selectedPlaceId}
-          onSelectPlace={onSelectPlace}
-        />
-      </Map>
-    </APIProvider>
+    <MapContainer
+      center={[center.lat, center.lon]}
+      zoom={15}
+      zoomControl={false}
+      className="h-full w-full bg-muted"
+    >
+      <TileLayer key={isDark ? 'dark' : 'light'} url={isDark ? DARK_TILES : LIGHT_TILES} attribution={ATTRIBUTION} />
+      <ZoomControl position="bottomleft" />
+      <Recenter center={center} />
+
+      {userCoords && (
+        <Marker position={[userCoords.lat, userCoords.lon]} icon={USER_ICON} zIndexOffset={1000} />
+      )}
+
+      {places.map((place) => {
+        const { color } = getCategoryMeta(place.category)
+        const selected = place.id === selectedPlaceId
+        return (
+          <Marker
+            key={place.id}
+            position={[place.lat, place.lon]}
+            icon={buildIcon(categoryMarkerUrl(place.category, color), selected ? 1.25 : 1)}
+            zIndexOffset={selected ? 500 : 0}
+            eventHandlers={{ click: () => onSelectPlace(place.id) }}
+          />
+        )
+      })}
+    </MapContainer>
   )
 }
