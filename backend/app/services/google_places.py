@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 import httpx
@@ -107,15 +108,12 @@ def _parse_place(raw: dict, user_lat: float, user_lon: float) -> Place | None:
     )
 
 
-async def fetch_nearby_places(lat: float, lon: float, radius: int) -> list[Place]:
-    """Google Places (New) Nearby Search ile çevredeki mekanları getirir (mesafeye göre sıralı)."""
-    cache_key = (round(lat, 4), round(lon, 4), radius)
-    cached = _CACHE.get(cache_key)
-    if cached and time.monotonic() - cached[0] < _CACHE_TTL:
-        return cached[1]
-
+async def _search_one(
+    client: httpx.AsyncClient, lat: float, lon: float, radius: int, included_types: list[str]
+) -> list[dict]:
+    """Tek bir tür grubu için Nearby Search (max 20 sonuç)."""
     body = {
-        "includedTypes": INCLUDED_TYPES,
+        "includedTypes": included_types,
         "maxResultCount": 20,
         "locationRestriction": {
             "circle": {
@@ -130,19 +128,39 @@ async def fetch_nearby_places(lat: float, lon: float, radius: int) -> list[Place
         "X-Goog-Api-Key": settings.google_maps_api_key,
         "X-Goog-FieldMask": FIELD_MASK,
     }
+    response = await client.post(NEARBY_URL, json=body, headers=headers)
+    response.raise_for_status()
+    return response.json().get("places", [])
+
+
+async def fetch_nearby_places(lat: float, lon: float, radius: int) -> list[Place]:
+    """Çevredeki mekanları getirir. Google'ın istek başına 20 sonuç limitini aşmak için her
+    türü AYRI ve paralel sorgular, ardından id'ye göre tekilleştirip mesafeye göre sıralar."""
+    cache_key = (round(lat, 4), round(lon, 4), radius)
+    cached = _CACHE.get(cache_key)
+    if cached and time.monotonic() - cached[0] < _CACHE_TTL:
+        return cached[1]
 
     async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.post(NEARBY_URL, json=body, headers=headers)
-        response.raise_for_status()
+        results = await asyncio.gather(
+            *(_search_one(client, lat, lon, radius, [t]) for t in INCLUDED_TYPES),
+            return_exceptions=True,
+        )
 
-    raw_places = response.json().get("places", [])
-    places = [
-        place
-        for raw in raw_places
-        if (place := _parse_place(raw, lat, lon)) is not None
-    ]
-    places.sort(key=lambda place: place.distance_m)
+    valid = [r for r in results if not isinstance(r, BaseException)]
+    if not valid:
+        # Tüm sorgular başarısız → ağ/sağlayıcı hatasını yukarı taşı (502).
+        raise next(r for r in results if isinstance(r, BaseException))
 
+    # id'ye göre tekilleştir (aynı mekan birden fazla türde dönebilir).
+    unique: dict[str, Place] = {}
+    for raw_list in valid:
+        for raw in raw_list:
+            place = _parse_place(raw, lat, lon)
+            if place is not None and place.id not in unique:
+                unique[place.id] = place
+
+    places = sorted(unique.values(), key=lambda place: place.distance_m)
     _CACHE[cache_key] = (time.monotonic(), places)
     return places
 
