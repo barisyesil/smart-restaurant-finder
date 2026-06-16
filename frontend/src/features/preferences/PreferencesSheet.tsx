@@ -82,7 +82,7 @@ export function PreferencesSheet() {
           <SheetDescription>{t('filters.description')}</SheetDescription>
         </SheetHeader>
 
-        <div className="flex flex-col gap-6 px-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain px-4 pb-6">
           <div>
             <div className="mb-2 flex items-center justify-between">
               <Label>{t('filters.maxDistance')}</Label>
